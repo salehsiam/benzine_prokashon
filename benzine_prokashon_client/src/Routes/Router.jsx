@@ -1,8 +1,10 @@
 import { createBrowserRouter } from "react-router-dom";
-import MainLayout from "../Layout/MainLayout";
-import Home from "../Pages/Home/Home";
-import DashboardLayout from "../Layout/DashboardLayout";
-import AddBooks from "../Pages/Home/Dashnoard/AddBooks/AddBooks";
+import MainLayout from "../components/Layout/MainLayout";
+import DashboardLayout from "../components/Layout/DashboardLayout";
+import Home from "../Pages/Home";
+import AddBooks from "../Pages/Admin/AddBooks";
+import Login from "../Pages/Login";
+import Register from "../Pages/Register";
 
 const router = createBrowserRouter([
   {
@@ -15,6 +17,15 @@ const router = createBrowserRouter([
       },
     ],
   },
+  {
+    path: "login",
+    element: <Login />,
+  },
+  {
+    path: "register",
+    element: <Register />,
+  },
+
   {
     path: "/dashboard",
     element: <DashboardLayout />,

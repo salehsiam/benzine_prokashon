@@ -1,7 +1,7 @@
 import React from "react";
 
 const AddBooks = () => {
-  return <div className="bg-gray-800">addbooks</div>;
+  return <div>Addbooks</div>;
 };
 
 export default AddBooks;

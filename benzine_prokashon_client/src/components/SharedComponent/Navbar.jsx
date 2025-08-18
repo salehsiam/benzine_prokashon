@@ -1,14 +1,13 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom"; // or 'next/link' if Next.js
+import { Link, useLocation } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
 import { CiHeart, CiUser } from "react-icons/ci";
 import { IoClose } from "react-icons/io5";
-import logo from "../assets/logo.png"; // adjust path if needed
+import logo from "../../assets/logo.png";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Example navLinks
   const navLinks = [
     {
       name: "হোম",
@@ -32,14 +31,13 @@ const Navbar = () => {
     },
   ];
 
-  // React Router way (for Next.js, use `usePathname()` from 'next/navigation')
   const location = useLocation();
   const pathname = location.pathname;
 
   const placeholders = [
-    "Search books...",
-    "Search authors...",
-    "Search articles...",
+    "বইয়ের নাম লিখুন",
+    "লেখকের নাম লিখুন",
+    "বিষয়ের নাম লিখুন",
   ];
   const index = 0; // you can make this dynamic later
 
@@ -91,11 +89,10 @@ const Navbar = () => {
             <button className="px-4 py-2 text-2xl hover:bg-opacity-90 transition border-r">
               <CiHeart />
             </button>
-            <button
-              onClick={() => alert("Sign In logic here")} // replace with signIn()
-              className="px-4 py-2 text-2xl hover:bg-opacity-90 transition"
-            >
-              <CiUser />
+            <button className="px-4 py-2 text-2xl hover:bg-opacity-90 transition">
+              <Link to="/login">
+                <CiUser />
+              </Link>
             </button>
           </div>
 
