@@ -12,7 +12,13 @@ import {
 } from "@/components/ui/sidebar";
 
 import { Link } from "react-router-dom";
-import { Home, PlusSquare, BookOpen } from "lucide-react"; // icons
+import {
+  Home,
+  PlusSquare,
+  BookOpen,
+  BriefcaseBusiness,
+  LibraryBig,
+} from "lucide-react"; // icons
 import { CiLogout } from "react-icons/ci";
 import useAuth from "../../Hooks/useAuth";
 // import logo from "./../../assets/logo.png";
@@ -55,7 +61,7 @@ export function AppSidebar() {
               {/* Add Books */}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/dashboard/addbooks">
+                  <Link to="/dashboard/add-books">
                     <PlusSquare className="mr-2 h-4 w-4" /> Add Books
                   </Link>
                 </SidebarMenuButton>
@@ -66,6 +72,15 @@ export function AppSidebar() {
                 <SidebarMenuButton asChild>
                   <Link to="/dashboard/manage-books">
                     <BookOpen className="mr-2 h-4 w-4" /> Manage Books
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              {/* Sell Details */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/dashboard/sell-details">
+                    <BriefcaseBusiness className="mr-2 h-4 w-4" />
+                    Sell Details
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -86,19 +101,20 @@ export function AppSidebar() {
               </SidebarMenuItem>
 
               {/* Add Books */}
-              <SidebarMenuItem>
+              {/* <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/dashboard/addbooks">
+                  <Link to="/dashboard/add-books">
                     <PlusSquare className="mr-2 h-4 w-4" /> Add Books
                   </Link>
                 </SidebarMenuButton>
-              </SidebarMenuItem>
+              </SidebarMenuItem> */}
 
-              {/* Manage Books */}
+              {/* All Books */}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/dashboard/manage-books">
-                    <BookOpen className="mr-2 h-4 w-4" /> All Books
+                    <LibraryBig className="mr-2 h-4 w-4" />
+                    All Books
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -116,6 +132,32 @@ export function AppSidebar() {
         >
           <CiLogout />
         </button>
+        {/* <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton>
+                  <User2 /> Username
+                  <ChevronUp className="ml-auto" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                side="top"
+                className="w-[--radix-popper-anchor-width]"
+              >
+                <DropdownMenuItem>
+                  <span>Account</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <span>Billing</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <span>Sign out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu> */}
       </SidebarFooter>
     </Sidebar>
   );

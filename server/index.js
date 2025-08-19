@@ -27,6 +27,12 @@ async function run() {
     const booksCollection = client.db("benzine_prokashon").collection("books");
 
     // books apis
+
+    app.get("/books", async (req, res) => {
+      const cursor = booksCollection.find();
+      const books = await cursor.toArray();
+      res.send(books);
+    });
     app.post("/books", async (req, res) => {
       const book = req.body;
       const result = await booksCollection.insertOne(book);

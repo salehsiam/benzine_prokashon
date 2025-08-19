@@ -5,6 +5,8 @@ import Home from "../Pages/Home";
 import AddBooks from "../Pages/Admin/AddBooks";
 import Login from "../Pages/Login";
 import Register from "../Pages/Register";
+import ManageBooks from "../Pages/Admin/ManageBooks";
+import SellDetails from "../Pages/Admin/SellDetails";
 
 const router = createBrowserRouter([
   {
@@ -31,8 +33,16 @@ const router = createBrowserRouter([
     element: <DashboardLayout />,
     children: [
       {
-        path: "addbooks",
+        path: "add-books",
         element: <AddBooks />,
+      },
+      {
+        path: "manage-books",
+        element: <ManageBooks />,
+      },
+      {
+        path: "sell-details",
+        element: <SellDetails />,
       },
     ],
   },

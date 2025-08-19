@@ -20,10 +20,12 @@ import {
 import JoditEditor from "jodit-react";
 import { toast } from "sonner";
 import useAxiosPublic from "../../Hooks/useAxiosPublic";
+import useAuth from "../../Hooks/useAuth";
 
 const AddBooks = () => {
   const editor = useRef(null);
   const axiosPublic = useAxiosPublic();
+  const { user } = useAuth();
   const imageHostingKey = import.meta.env.VITE_IMGBB_KEY;
   const imageHostingApi = `https://api.imgbb.com/1/upload?key=${imageHostingKey}`;
   const form = useForm({
@@ -79,8 +81,8 @@ const AddBooks = () => {
           stock: Number(data.stock),
           isbn: data.isbn,
           description: data.description,
-          coverImage: imgURL, // ✅ uploaded image URL
-          createdBy: "authorId123",
+          coverImage: imgURL,
+          createdBy: user?.email,
           isFeatured: false,
           createdAt: new Date(),
         };
