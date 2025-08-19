@@ -26,6 +26,13 @@ async function run() {
     await client.connect();
     const booksCollection = client.db("benzine_prokashon").collection("books");
 
+    // books apis
+    app.post("/books", async (req, res) => {
+      const book = req.body;
+      const result = await booksCollection.insertOne(book);
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(

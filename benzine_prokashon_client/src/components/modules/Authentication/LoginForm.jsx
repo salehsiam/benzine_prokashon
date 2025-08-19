@@ -10,15 +10,41 @@ import {
 } from "../../ui/form";
 import { Input } from "../../ui/input";
 
+import { toast } from "sonner"; // or your toast library
+import useAuth from "../../../Hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+
 const LoginForm = () => {
-  const form = useForm();
+  const { signInUser, googleSignIn } = useAuth();
+  const navigate = useNavigate();
+
+  const form = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
   const onSubmit = async (data) => {
     try {
-      console.log(data);
-      // toast.success("Logged in successfully");
+      await signInUser(data.email, data.password);
+      navigate("/");
+      toast.success("Logged in successfully!");
+      form.reset();
     } catch (err) {
       console.error(err);
+      toast.error(err.message || "Login failed!");
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      await googleSignIn();
+      navigate("/");
+      toast.success("Logged in with Google!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Google login failed!");
     }
   };
 
@@ -26,9 +52,6 @@ const LoginForm = () => {
     <div className="flex flex-col gap-4 ">
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Login to your account</h1>
-        {/* <p className="text-balance text-sm text-muted-foreground">
-          Enter your email below to login to your account
-        </p> */}
       </div>
       <div>
         <Form {...form}>
@@ -37,6 +60,7 @@ const LoginForm = () => {
             <FormField
               control={form.control}
               name="email"
+              rules={{ required: "Email is required" }}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
@@ -56,6 +80,7 @@ const LoginForm = () => {
             <FormField
               control={form.control}
               name="password"
+              rules={{ required: "Password is required" }}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Password</FormLabel>
@@ -70,6 +95,7 @@ const LoginForm = () => {
                 </FormItem>
               )}
             />
+
             {/* Submit Button */}
             <button
               type="submit"
@@ -79,13 +105,19 @@ const LoginForm = () => {
             </button>
           </form>
         </Form>
+
+        {/* Divider */}
         <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border my-4">
           <span className="relative z-10 bg-background px-2 text-muted-foreground">
             Or continue with
           </span>
         </div>
 
-        <button className="w-full bg-white text-blue-400 py-2 px-4 rounded-lg border">
+        {/* Google Login */}
+        <button
+          onClick={handleGoogleLogin}
+          className="w-full bg-white text-blue-400 py-2 px-4 rounded-lg border"
+        >
           Login With Google
         </button>
       </div>

@@ -4,9 +4,12 @@ import { FaSearch } from "react-icons/fa";
 import { CiHeart, CiUser } from "react-icons/ci";
 import { IoClose } from "react-icons/io5";
 import logo from "../../assets/logo.png";
+import { CiLogout } from "react-icons/ci";
+import useAuth from "../../Hooks/useAuth";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, logOut } = useAuth();
 
   const navLinks = [
     {
@@ -42,6 +45,15 @@ const Navbar = () => {
   const index = 0; // you can make this dynamic later
 
   const closeDrawer = () => setIsOpen(false);
+
+  const handleLogout = async () => {
+    try {
+      await logOut();
+      console.log("User logged out");
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <>
@@ -89,11 +101,21 @@ const Navbar = () => {
             <button className="px-4 py-2 text-2xl hover:bg-opacity-90 transition border-r">
               <CiHeart />
             </button>
-            <button className="px-4 py-2 text-2xl hover:bg-opacity-90 transition">
-              <Link to="/login">
-                <CiUser />
-              </Link>
-            </button>
+
+            {user ? (
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 text-2xl hover:bg-opacity-90 transition"
+              >
+                <CiLogout />
+              </button>
+            ) : (
+              <button className="px-4 py-2 text-2xl hover:bg-opacity-90 transition">
+                <Link to="/login">
+                  <CiUser />
+                </Link>
+              </button>
+            )}
           </div>
 
           {/* Mobile Toggle */}

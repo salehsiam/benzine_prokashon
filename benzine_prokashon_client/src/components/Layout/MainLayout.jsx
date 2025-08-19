@@ -1,6 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "../SharedComponent/Navbar";
+import { Toaster } from "sonner";
 
 const MainLayout = () => {
   return (
@@ -9,6 +10,7 @@ const MainLayout = () => {
         <Navbar />
       </nav>
       <Outlet />
+      <Toaster />
     </div>
   );
 };
