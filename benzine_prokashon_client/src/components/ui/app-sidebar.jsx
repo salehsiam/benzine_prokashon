@@ -1,0 +1,122 @@
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from "@/components/ui/sidebar";
+
+import { Link } from "react-router-dom";
+import { Home, PlusSquare, BookOpen } from "lucide-react"; // icons
+import { CiLogout } from "react-icons/ci";
+import useAuth from "../../Hooks/useAuth";
+// import logo from "./../../assets/logo.png";
+
+export function AppSidebar() {
+  const { user, logOut } = useAuth();
+  const handleLogout = async () => {
+    try {
+      await logOut();
+      console.log("User logged out");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  return (
+    <Sidebar>
+      {/* Header */}
+      <SidebarHeader>
+        <div className="flex items-center ">
+          {/* <img className="w-12 h-16" src={logo} alt="" /> */}
+          <h2 className="text-md font-semibold px-4 py-2">Benzine Prokashon</h2>
+        </div>
+      </SidebarHeader>
+
+      {/* Sidebar Content */}
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Dashboard Menu</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {/* Home */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/dashboard">
+                    <Home className="mr-2 h-4 w-4" /> Home
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              {/* Add Books */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/dashboard/addbooks">
+                    <PlusSquare className="mr-2 h-4 w-4" /> Add Books
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              {/* Manage Books */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/dashboard/manage-books">
+                    <BookOpen className="mr-2 h-4 w-4" /> Manage Books
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {/* Home */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/">
+                    <Home className="mr-2 h-4 w-4" /> Home
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              {/* Add Books */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/dashboard/addbooks">
+                    <PlusSquare className="mr-2 h-4 w-4" /> Add Books
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              {/* Manage Books */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/dashboard/manage-books">
+                    <BookOpen className="mr-2 h-4 w-4" /> All Books
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+
+      {/* Footer */}
+      <SidebarFooter>
+        {/* <div className="px-4 py-2 text-sm">© 2025 benzine prokashon</div> */}
+        <button
+          onClick={handleLogout}
+          className="px-4 py-2 text-2xl hover:bg-opacity-90 transition flex items-center justify-end"
+        >
+          <CiLogout />
+        </button>
+      </SidebarFooter>
+    </Sidebar>
+  );
+}

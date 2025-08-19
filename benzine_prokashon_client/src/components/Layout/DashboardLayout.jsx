@@ -1,14 +1,18 @@
 import React from "react";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+
 import { Outlet } from "react-router-dom";
-import { Toaster } from "sonner";
+import { AppSidebar } from "../ui/app-sidebar";
 
 const DashboardLayout = () => {
   return (
-    <div className="">
-      <Toaster />
-      <h1>Sidebar</h1>
-      <Outlet />
-    </div>
+    <SidebarProvider>
+      <AppSidebar />
+      <main className="flex-1 p-4">
+        <SidebarTrigger />
+        <Outlet />
+      </main>
+    </SidebarProvider>
   );
 };
 

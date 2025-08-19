@@ -31,7 +31,7 @@ const router = createBrowserRouter([
     element: <DashboardLayout />,
     children: [
       {
-        path: "add-books",
+        path: "addbooks",
         element: <AddBooks />,
       },
     ],
