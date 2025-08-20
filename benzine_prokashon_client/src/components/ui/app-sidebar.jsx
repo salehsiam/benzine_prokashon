@@ -18,6 +18,7 @@ import {
   BookOpen,
   BriefcaseBusiness,
   LibraryBig,
+  DiamondPlus,
 } from "lucide-react"; // icons
 import { CiLogout } from "react-icons/ci";
 import useAuth from "../../Hooks/useAuth";
@@ -75,6 +76,15 @@ export function AppSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              {/* Input Sell Details */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/dashboard/input-selling-details">
+                    <DiamondPlus className="mr-2 h-4 w-4" />
+                    Add Sell Details
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               {/* Sell Details */}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
@@ -112,7 +122,7 @@ export function AppSidebar() {
               {/* All Books */}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/dashboard/manage-books">
+                  <Link to="/all-books">
                     <LibraryBig className="mr-2 h-4 w-4" />
                     All Books
                   </Link>

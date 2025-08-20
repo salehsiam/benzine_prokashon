@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
-import { CiHeart, CiUser } from "react-icons/ci";
 import { IoClose } from "react-icons/io5";
 import logo from "../../assets/logo.png";
-import { CiLogout } from "react-icons/ci";
 import useAuth from "../../Hooks/useAuth";
+import { BookHeart, LogOut, UserRoundPlus } from "lucide-react";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -78,7 +77,7 @@ const Navbar = () => {
                   key={link.name}
                   to={link.href}
                   className={`hover:text-primary px-2 ${
-                    isActive ? "text-primary font-semibold" : ""
+                    isActive ? "text-primary  font-semibold" : ""
                   }`}
                 >
                   {link.name}
@@ -99,7 +98,7 @@ const Navbar = () => {
               />
             </div>
             <button className="px-4 py-2 text-2xl hover:bg-opacity-90 transition border-r">
-              <CiHeart />
+              <BookHeart />
             </button>
 
             {user ? (
@@ -107,12 +106,12 @@ const Navbar = () => {
                 onClick={handleLogout}
                 className="px-4 py-2 text-2xl hover:bg-opacity-90 transition"
               >
-                <CiLogout />
+                <LogOut />
               </button>
             ) : (
               <button className="px-4 py-2 text-2xl hover:bg-opacity-90 transition">
                 <Link to="/login">
-                  <CiUser />
+                  <UserRoundPlus />
                 </Link>
               </button>
             )}

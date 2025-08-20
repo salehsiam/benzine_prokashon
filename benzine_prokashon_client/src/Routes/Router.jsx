@@ -7,6 +7,8 @@ import Login from "../Pages/Login";
 import Register from "../Pages/Register";
 import ManageBooks from "../Pages/Admin/ManageBooks";
 import SellDetails from "../Pages/Admin/SellDetails";
+import InputSellingDetails from "../Pages/Admin/InputSellingDetails";
+import AllBooks from "../Pages/User/AllBooks";
 
 const router = createBrowserRouter([
   {
@@ -16,6 +18,10 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <Home />,
+      },
+      {
+        path: "all-books",
+        element: <AllBooks />,
       },
     ],
   },
@@ -43,6 +49,10 @@ const router = createBrowserRouter([
       {
         path: "sell-details",
         element: <SellDetails />,
+      },
+      {
+        path: "input-selling-details",
+        element: <InputSellingDetails />,
       },
     ],
   },
