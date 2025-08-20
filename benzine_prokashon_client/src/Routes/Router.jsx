@@ -9,6 +9,7 @@ import ManageBooks from "../Pages/Admin/ManageBooks";
 import SellDetails from "../Pages/Admin/SellDetails";
 import InputSellingDetails from "../Pages/Admin/InputSellingDetails";
 import AllBooks from "../Pages/User/AllBooks";
+import CartPage from "../Pages/User/CartPage";
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
       {
         path: "all-books",
         element: <AllBooks />,
+      },
+      {
+        path: "cart",
+        element: <CartPage />,
       },
     ],
   },

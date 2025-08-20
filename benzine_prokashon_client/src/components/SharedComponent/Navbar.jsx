@@ -4,7 +4,7 @@ import { FaSearch } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import logo from "../../assets/logo.png";
 import useAuth from "../../Hooks/useAuth";
-import { BookHeart, LogOut, UserRoundPlus } from "lucide-react";
+import { BookHeart, LogOut, ShoppingCart, UserRoundPlus } from "lucide-react";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,10 +19,10 @@ const Navbar = () => {
       name: "সকল বই",
       href: "/all-books",
     },
-    {
-      name: "লেখকবৃন্দ",
-      href: "/authors",
-    },
+    // {
+    //   name: "লেখকবৃন্দ",
+    //   href: "/authors",
+    // },
     {
       name: "ড্যাশবোর্ড",
       href: "/dashboard",
@@ -99,6 +99,11 @@ const Navbar = () => {
             </div>
             <button className="px-4 py-2 text-2xl hover:bg-opacity-90 transition border-r">
               <BookHeart />
+            </button>
+            <button className="px-4 py-2 text-2xl hover:bg-opacity-90 transition border-r">
+              <Link to="/cart" className="flex items-center gap-1">
+                <ShoppingCart />
+              </Link>
             </button>
 
             {user ? (
