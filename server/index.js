@@ -29,9 +29,54 @@ async function run() {
     // books apis
 
     app.get("/books", async (req, res) => {
-      const cursor = booksCollection.find();
-      const books = await cursor.toArray();
-      res.send(books);
+      try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || "";
+        const sortOrder = req.query.sortOrder === "desc" ? -1 : 1;
+
+        console.log("Received query params:", {
+          page,
+          limit,
+          search,
+          sortOrder,
+        }); // Debug log
+
+        const skip = (page - 1) * limit;
+
+        // Search condition
+        const query = search
+          ? {
+              $or: [
+                { productNameEn: { $regex: search, $options: "i" } },
+                { productNameBn: { $regex: search, $options: "i" } },
+                { authorName: { $regex: search, $options: "i" } },
+              ],
+            }
+          : {};
+
+        // Fetch books
+        const cursor = booksCollection
+          .find(query)
+          .sort({ listPrice: sortOrder }) // Changed from price to listPrice
+          .skip(skip)
+          .limit(limit);
+
+        const books = await cursor.toArray();
+        const totalBooks = await booksCollection.countDocuments(query);
+
+        console.log("Books found:", books.length, "Total books:", totalBooks); // Debug log
+
+        res.send({
+          books,
+          totalBooks,
+          totalPages: Math.ceil(totalBooks / limit),
+          currentPage: page,
+        });
+      } catch (error) {
+        console.error("Error fetching books:", error); // Debug log
+        res.status(500).send({ error: "Failed to fetch books" });
+      }
     });
     app.post("/books", async (req, res) => {
       const book = req.body;
