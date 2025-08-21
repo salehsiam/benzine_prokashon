@@ -42,7 +42,7 @@ const AllBooks = () => {
   return (
     <div className="pt-32 px-2 md:px-0 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-semibold mb-6">All Books</h2>
+        <h2 className="text-2xl font-semibold mb-6">বই দেখুন</h2>
         <div className="flex gap-4 mb-4">
           <input
             type="text"
@@ -77,55 +77,56 @@ const AllBooks = () => {
       ) : books?.length === 0 ? (
         <p className="text-gray-500">No books found.</p>
       ) : (
-        <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-          {books.map((book) => (
-            <BookCard key={book._id} book={book} />
-          ))}
+        <div>
+          <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+            {books.map((book) => (
+              <BookCard key={book._id} book={book} />
+            ))}
+          </div>
+          <div className="flex items-center justify-center gap-2 mt-6">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => {
+                const newPage = page - 1;
+                setPage(newPage);
+                updateSearchParams({ page: newPage });
+              }}
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+            >
+              Prev
+            </button>
+
+            {getPageNumbers().map((num) => (
+              <button
+                key={num}
+                onClick={() => {
+                  setPage(num);
+                  updateSearchParams({ page: num });
+                }}
+                className={`px-3 py-1 rounded ${
+                  currentPage === num
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 hover:bg-gray-300"
+                }`}
+              >
+                {num}
+              </button>
+            ))}
+
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => {
+                const newPage = page + 1;
+                setPage(newPage);
+                updateSearchParams({ page: newPage });
+              }}
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
-
-      <div className="flex items-center justify-center gap-2 mt-6">
-        <button
-          disabled={currentPage === 1}
-          onClick={() => {
-            const newPage = page - 1;
-            setPage(newPage);
-            updateSearchParams({ page: newPage });
-          }}
-          className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-        >
-          Prev
-        </button>
-
-        {getPageNumbers().map((num) => (
-          <button
-            key={num}
-            onClick={() => {
-              setPage(num);
-              updateSearchParams({ page: num });
-            }}
-            className={`px-3 py-1 rounded ${
-              currentPage === num
-                ? "bg-blue-500 text-white"
-                : "bg-gray-200 hover:bg-gray-300"
-            }`}
-          >
-            {num}
-          </button>
-        ))}
-
-        <button
-          disabled={currentPage === totalPages}
-          onClick={() => {
-            const newPage = page + 1;
-            setPage(newPage);
-            updateSearchParams({ page: newPage });
-          }}
-          className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
     </div>
   );
 };

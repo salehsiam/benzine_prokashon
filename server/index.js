@@ -35,13 +35,6 @@ async function run() {
         const search = req.query.search || "";
         const sortOrder = req.query.sortOrder === "desc" ? -1 : 1;
 
-        console.log("Received query params:", {
-          page,
-          limit,
-          search,
-          sortOrder,
-        }); // Debug log
-
         const skip = (page - 1) * limit;
 
         // Search condition
@@ -51,6 +44,7 @@ async function run() {
                 { productNameEn: { $regex: search, $options: "i" } },
                 { productNameBn: { $regex: search, $options: "i" } },
                 { authorName: { $regex: search, $options: "i" } },
+                { translatorName: { $regex: search, $options: "i" } },
               ],
             }
           : {};
@@ -64,8 +58,6 @@ async function run() {
 
         const books = await cursor.toArray();
         const totalBooks = await booksCollection.countDocuments(query);
-
-        console.log("Books found:", books.length, "Total books:", totalBooks); // Debug log
 
         res.send({
           books,

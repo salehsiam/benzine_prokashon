@@ -28,6 +28,23 @@ const AddBooks = () => {
   const { user } = useAuth();
   const imageHostingKey = import.meta.env.VITE_IMGBB_KEY;
   const imageHostingApi = `https://api.imgbb.com/1/upload?key=${imageHostingKey}`;
+  const genresList = [
+    "থ্রিলার",
+    "হরর",
+    "রোমান্টিক",
+    "গোয়েন্দা",
+    "ঐতিহাসিক",
+    "ফ্যান্টাসি",
+    "মিথলজি",
+    "ভ্রমণ",
+    "শিকার",
+    "অ্যাভেঞ্চার",
+    "মিস্ট্রি",
+    "রম্য",
+    "ধর্মীয়",
+    "নন-ফিকশন",
+  ];
+
   const form = useForm({
     defaultValues: {
       productNameBn: "",
@@ -43,6 +60,7 @@ const AddBooks = () => {
       discountType: "",
       discountValue: "",
       description: "",
+      genres: [],
     },
   });
 
@@ -82,6 +100,7 @@ const AddBooks = () => {
           isbn: data.isbn,
           description: data.description,
           coverImage: imgURL,
+          genres: data.genres,
           createdBy: user?.email,
           isFeatured: false,
           createdAt: new Date(),
@@ -114,7 +133,7 @@ const AddBooks = () => {
               rules={{ required: "Product name (Bn) is required" }}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Product Name (Bn)</FormLabel>
+                  <FormLabel>Product Name (Bn)*</FormLabel>
                   <FormControl>
                     <Input placeholder="পণ্যের নাম লিখুন" {...field} />
                   </FormControl>
@@ -130,7 +149,7 @@ const AddBooks = () => {
               rules={{ required: "Product name (En) is required" }}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Product Name (En)</FormLabel>
+                  <FormLabel>Product Name (En)*</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Enter product name in English"
@@ -166,7 +185,7 @@ const AddBooks = () => {
               rules={{ required: "Cover image is required" }}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Book Cover</FormLabel>
+                  <FormLabel>Book Cover*</FormLabel>
                   <FormControl>
                     <Input
                       type="file"
@@ -188,7 +207,7 @@ const AddBooks = () => {
               rules={{ required: "Author name is required" }}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Author Name</FormLabel>
+                  <FormLabel>Author Name*</FormLabel>
                   <FormControl>
                     <Input placeholder="Enter author name" {...field} />
                   </FormControl>
@@ -215,7 +234,96 @@ const AddBooks = () => {
               )}
             />
           </div>
-
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* author/translator email */}
+            <FormField
+              control={form.control}
+              name="authorEmail"
+              rules={{
+                required: "Author/Translator email is required",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, // simple email regex
+                  message: "Please enter a valid email address",
+                },
+              }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Author/Translator Email*</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="Enter author email"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* PDF */}
+            <FormField
+              control={form.control}
+              name="bookPdf"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Book PDF</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      accept="application/pdf"
+                      onChange={(e) => field.onChange(e.target.files[0])}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          {/* Genre */}
+          <div>
+            <FormField
+              control={form.control}
+              name="genres"
+              rules={{ required: "Please select at least one genre" }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Genres*</FormLabel>
+                  <FormControl>
+                    <div className="flex flex-wrap gap-2 text-sm">
+                      {genresList.map((genre) => (
+                        <label
+                          key={genre}
+                          className={`px-3 py-1 border rounded cursor-pointer ${
+                            field.value.includes(genre)
+                              ? "bg-blue-500 text-white"
+                              : "bg-gray-100 hover:bg-gray-200"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            value={genre}
+                            checked={field.value.includes(genre)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                field.onChange([...field.value, genre]);
+                              } else {
+                                field.onChange(
+                                  field.value.filter((g) => g !== genre)
+                                );
+                              }
+                            }}
+                            className="hidden"
+                          />
+                          {genre}
+                        </label>
+                      ))}
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* List Price */}
             <FormField
@@ -224,7 +332,7 @@ const AddBooks = () => {
               rules={{ required: "List price is required" }}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>List Price</FormLabel>
+                  <FormLabel>List Price*</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -248,7 +356,7 @@ const AddBooks = () => {
               rules={{ required: "Number of pages is required" }}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Number of Pages</FormLabel>
+                  <FormLabel>Number of Pages*</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -275,7 +383,7 @@ const AddBooks = () => {
               rules={{ required: "Discount type is required" }}
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <FormLabel>Discount Type</FormLabel>
+                  <FormLabel>Discount Type*</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -302,7 +410,7 @@ const AddBooks = () => {
               rules={{ required: "Discount value is required" }}
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <FormLabel>Discount Value</FormLabel>
+                  <FormLabel>Discount Value*</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -330,7 +438,7 @@ const AddBooks = () => {
               rules={{ required: "Stock is required" }}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Stock</FormLabel>
+                  <FormLabel>Stock*</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -355,7 +463,7 @@ const AddBooks = () => {
               rules={{ required: "ISBN is required" }}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>ISBN</FormLabel>
+                  <FormLabel>ISBN*</FormLabel>
                   <FormControl>
                     <Input placeholder="Enter ISBN" {...field} />
                   </FormControl>
@@ -372,7 +480,7 @@ const AddBooks = () => {
             rules={{ required: "Description is required" }}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description</FormLabel>
+                <FormLabel>Description*</FormLabel>
                 <FormControl>
                   <div className="border rounded-md">
                     <JoditEditor
