@@ -18,7 +18,7 @@ const useBooks = (
         const res = await axiosSecure.get("/books", {
           params: { page, limit, search, sortOrder, genre, sortBy },
         });
-        console.log("API response:", res.data); // Debug log
+
         return res.data;
       } catch (err) {
         console.error("Error fetching books:", err); // Debug log

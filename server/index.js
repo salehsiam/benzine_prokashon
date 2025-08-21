@@ -47,6 +47,7 @@ async function run() {
               { productNameBn: { $regex: search, $options: "i" } },
               { authorName: { $regex: search, $options: "i" } },
               { translatorName: { $regex: search, $options: "i" } },
+              { genres: { $regex: search, $options: "i" } },
             ],
           }),
           ...(genre && { genres: genre }),
