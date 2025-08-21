@@ -20,3 +20,9 @@ export const getDiscountedPrice = (book) => {
 
   return book.listPrice;
 };
+
+export const toBanglaNumber = (num) => {
+  if (num === null || num === undefined) return "";
+  const banglaDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
+  return num.toString().replace(/[0-9]/g, (d) => banglaDigits[d]);
+};

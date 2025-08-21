@@ -1,7 +1,8 @@
 import React from "react";
 import { useCart } from "../../Provider/CartContext";
 import { ShoppingCart } from "lucide-react";
-import { getDiscountedPrice } from "../../lib/utils";
+import { getDiscountedPrice, toBanglaNumber } from "../../lib/utils";
+import { toast } from "sonner";
 
 const CartPage = () => {
   const { cart, removeFromCart, updateQty } = useCart();
@@ -10,6 +11,49 @@ const CartPage = () => {
     (acc, item) => acc + getDiscountedPrice(item) * item.qty,
     0
   );
+
+  // 📌 Generate message
+  const generateMessage = () => {
+    let message = "📚 নতুন অর্ডার:\n\n";
+    cart.forEach((item, index) => {
+      message += `${toBanglaNumber(index + 1)}. ${
+        item.productNameBn
+      } (${toBanglaNumber(item.qty)} টি) - ৳${toBanglaNumber(
+        getDiscountedPrice(item) * item.qty
+      )}\n`;
+    });
+    message += `\nমোট: ৳${toBanglaNumber(totalPrice)}\n\nঅর্ডার কনফার্ম করুন।`;
+    return message;
+  };
+
+  // 📌 WhatsApp Order
+  const handleWhatsAppOrder = () => {
+    const phoneNumber = "8801919525143";
+    const msg = generateMessage();
+
+    navigator.clipboard.writeText(msg).then(() => {
+      toast("✅ অর্ডার মেসেজ কপি হয়েছে। WhatsApp এ গিয়ে Paste করুন।");
+      setTimeout(() => {
+        window.open(`https://wa.me/${phoneNumber}`, "_blank");
+      }, 2000);
+    });
+  };
+
+  // 📌 Facebook Order (cannot prefill, so copy to clipboard)
+  const handleFacebookOrder = () => {
+    const fbPageUrl = "https://www.facebook.com/benzeneprokashon";
+    const msg = generateMessage();
+
+    // Copy to clipboard
+    navigator.clipboard.writeText(msg).then(() => {
+      toast("✅ আপনার অর্ডার মেসেজ কপি হয়েছে। Messenger এ গিয়ে Paste করুন।");
+
+      // ⏳ wait 2 seconds before opening FB Messenger
+      setTimeout(() => {
+        window.open(fbPageUrl, "_blank");
+      }, 2000);
+    });
+  };
 
   return (
     <div className="max-w-7xl mx-auto pt-32 px-2 md:px-4 lg:px-0">
@@ -40,11 +84,11 @@ const CartPage = () => {
 
                     <div className="flex gap-2">
                       <span className="text-primary font-semibold">
-                        ৳ {discounted}
+                        ৳ {toBanglaNumber(discounted)}
                       </span>
                       {discounted < item.listPrice && (
                         <span className="line-through text-gray-500 text-sm">
-                          ৳ {item.listPrice}
+                          ৳ {toBanglaNumber(item.listPrice)}
                         </span>
                       )}
                     </div>
@@ -77,9 +121,26 @@ const CartPage = () => {
             );
           })}
 
+          {/* Total */}
           <div className="mt-6 flex justify-between font-bold text-lg">
             <span>Total:</span>
-            <span>৳ {totalPrice}</span>
+            <span>৳ {toBanglaNumber(totalPrice)}</span>
+          </div>
+
+          {/* Order Buttons */}
+          <div className="mt-6 flex justify-end gap-4">
+            <button
+              onClick={handleFacebookOrder}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700"
+            >
+              Order with Facebook
+            </button>
+            <button
+              onClick={handleWhatsAppOrder}
+              className="bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700"
+            >
+              Order with WhatsApp
+            </button>
           </div>
         </div>
       )}

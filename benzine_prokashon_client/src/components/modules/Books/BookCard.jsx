@@ -1,7 +1,7 @@
 import { ShoppingCart, Heart } from "lucide-react";
 import React from "react";
 import { useCart } from "../../../Provider/CartContext";
-import { getDiscountedPrice } from "../../../lib/utils";
+import { getDiscountedPrice, toBanglaNumber } from "../../../lib/utils";
 
 const BookCard = ({ book }) => {
   const { addToCart } = useCart();
@@ -30,11 +30,11 @@ const BookCard = ({ book }) => {
           <div className="mt-auto">
             <div className="flex gap-1 items-center mb-2">
               <span className="font-semibold text-base">
-                ৳ {discountedPrice}
+                ৳ {toBanglaNumber(discountedPrice)}
               </span>
               {book.listPrice && (
                 <span className="font-normal text-sm line-through pl-1">
-                  ৳ {Math.round(book?.listPrice)}
+                  ৳ {toBanglaNumber(Math.round(book?.listPrice))}
                 </span>
               )}
             </div>
