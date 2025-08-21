@@ -101,6 +101,8 @@ const AddBooks = () => {
           description: data.description,
           coverImage: imgURL,
           genres: data.genres,
+          authorEmail: data.authorEmail,
+          bookPdf: data.bookPdf ? data.bookPdf.name : null,
           createdBy: user?.email,
           isFeatured: false,
           createdAt: new Date(),

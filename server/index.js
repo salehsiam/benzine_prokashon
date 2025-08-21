@@ -33,26 +33,32 @@ async function run() {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const search = req.query.search || "";
+        const sortBy = req.query.sortBy || "price";
         const sortOrder = req.query.sortOrder === "desc" ? -1 : 1;
+        const genre = req.query.genre;
 
         const skip = (page - 1) * limit;
 
         // Search condition
-        const query = search
-          ? {
-              $or: [
-                { productNameEn: { $regex: search, $options: "i" } },
-                { productNameBn: { $regex: search, $options: "i" } },
-                { authorName: { $regex: search, $options: "i" } },
-                { translatorName: { $regex: search, $options: "i" } },
-              ],
-            }
-          : {};
-
+        const query = {
+          ...(search && {
+            $or: [
+              { productNameEn: { $regex: search, $options: "i" } },
+              { productNameBn: { $regex: search, $options: "i" } },
+              { authorName: { $regex: search, $options: "i" } },
+              { translatorName: { $regex: search, $options: "i" } },
+            ],
+          }),
+          ...(genre && { genres: genre }),
+        };
+        const sortField =
+          sortBy === "time"
+            ? { createdAt: sortOrder }
+            : { listPrice: sortOrder };
         // Fetch books
         const cursor = booksCollection
           .find(query)
-          .sort({ listPrice: sortOrder }) // Changed from price to listPrice
+          .sort(sortField)
           .skip(skip)
           .limit(limit);
 

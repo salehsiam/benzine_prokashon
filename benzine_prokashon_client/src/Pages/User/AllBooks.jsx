@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import useBooks from "../../Hooks/useBooks";
 import BookCard from "../../components/modules/Books/BookCard";
+import GenreFilter from "../../components/modules/Books/GenreFilter";
 
 const AllBooks = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -9,14 +10,18 @@ const AllBooks = () => {
   const [sortOrder, setSortOrder] = useState(
     searchParams.get("sortOrder") || "asc"
   );
+  const [sortBy, setSortBy] = useState(searchParams.get("sortBy") || "price");
   const search = searchParams.get("search") || "";
+  const genre = searchParams.get("genre") || "";
   const limit = 12;
 
   const { books, totalPages, currentPage, isLoading, error } = useBooks(
     page,
     limit,
     search,
-    sortOrder
+    sortOrder,
+    sortBy,
+    genre
   );
 
   const updateSearchParams = (newParams) => {
@@ -43,31 +48,62 @@ const AllBooks = () => {
     <div className="pt-32 px-2 md:px-0 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-semibold mb-6">বই দেখুন</h2>
+
         <div className="flex gap-4 mb-4">
           <input
             type="text"
             placeholder="Search by title or author..."
-            className="border px-3 py-2 rounded"
+            className="border px-3 py-2 rounded-lg hidden sm:block"
             value={search}
             onChange={(e) => {
-              console.log("AllBooks updating search:", e.target.value);
               updateSearchParams({ search: e.target.value, page: 1 });
             }}
           />
+
+          {/* Price sort button */}
           <button
             onClick={() => {
               const newSortOrder = sortOrder === "asc" ? "desc" : "asc";
-              console.log("Toggling sortOrder to:", newSortOrder);
               setSortOrder(newSortOrder);
-              updateSearchParams({ sortOrder: newSortOrder, page: 1 });
+              setSortBy("price");
+              updateSearchParams({
+                sortBy: "price",
+                sortOrder: newSortOrder,
+                page: 1,
+              });
             }}
-            className="px-3 py-2 bg-blue-400 text-white rounded"
+            className={`px-3 py-2 rounded-lg ${
+              sortBy === "price" ? "bg-blue-400 text-white" : "bg-gray-200"
+            }`}
           >
-            Price {sortOrder === "asc" ? "↑" : "↓"}
+            Price {sortBy === "price" ? (sortOrder === "asc" ? "↑" : "↓") : ""}
+          </button>
+
+          {/* Time sort button */}
+          <button
+            onClick={() => {
+              const newSortOrder = sortOrder === "asc" ? "desc" : "asc";
+              setSortOrder(newSortOrder);
+              setSortBy("time");
+              updateSearchParams({
+                sortBy: "time",
+                sortOrder: newSortOrder,
+                page: 1,
+              });
+            }}
+            className={`px-3 py-2 rounded-lg ${
+              sortBy === "time" ? "bg-blue-400 text-white" : "bg-gray-200"
+            }`}
+          >
+            {sortBy === "time"
+              ? sortOrder === "asc"
+                ? "Older ↑"
+                : "Recent ↓"
+              : "Sort by Time"}
           </button>
         </div>
       </div>
-
+      <GenreFilter />
       {error ? (
         <p className="text-red-500">
           Error: {error.message || "Failed to load books"}

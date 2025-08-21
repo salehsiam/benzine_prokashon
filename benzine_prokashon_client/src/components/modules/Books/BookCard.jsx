@@ -41,12 +41,18 @@ const BookCard = ({ book }) => {
           </div>
 
           {/* Buttons */}
-          <div className="">
+          <div className="flex gap-2">
+            <button
+              // onClick={() => addToCart(book)}
+              className="bg-blue-400 text-white w-full px-2 py-1 rounded-md flex justify-center items-center gap-1 text-sm hover:bg-primary/90"
+            >
+              Details
+            </button>
             <button
               onClick={() => addToCart(book)}
               className="bg-blue-400 text-white w-full px-2 py-1 rounded-md flex justify-center items-center gap-1 text-sm hover:bg-primary/90"
             >
-              <ShoppingCart size={16} /> Add to Cart
+              Cart
             </button>
 
             {/* <button
