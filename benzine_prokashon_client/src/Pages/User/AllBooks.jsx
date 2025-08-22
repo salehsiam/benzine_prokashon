@@ -13,7 +13,7 @@ const AllBooks = () => {
   const [sortBy, setSortBy] = useState(searchParams.get("sortBy") || "price");
   const search = searchParams.get("search") || "";
   const genre = searchParams.get("genre") || "";
-  const limit = 12;
+  const limit = 18;
 
   const { books, totalPages, currentPage, isLoading, error } = useBooks(
     page,

@@ -9,7 +9,7 @@ const RecentBooks = () => {
     1, // page
     6, // limit
     "", // search
-    "desc", // sortOrder
+    "asc", // sortOrder
     "Recent", //sortBy
     "" // genre
   );

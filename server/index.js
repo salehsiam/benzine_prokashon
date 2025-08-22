@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -27,6 +27,28 @@ async function run() {
     const booksCollection = client.db("benzine_prokashon").collection("books");
 
     // books apis
+
+    app.get("/books/:id", async (req, res) => {
+      const { id } = req.params;
+
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).json({ error: "Invalid book ID" });
+      }
+
+      try {
+        const query = { _id: new ObjectId(id) };
+        const book = await booksCollection.findOne(query);
+
+        if (!book) {
+          return res.status(404).json({ error: "Book not found" });
+        }
+
+        res.json(book);
+      } catch (error) {
+        console.error("Error fetching book by ID:", error);
+        res.status(500).json({ error: "Failed to fetch book" });
+      }
+    });
 
     app.get("/books", async (req, res) => {
       try {

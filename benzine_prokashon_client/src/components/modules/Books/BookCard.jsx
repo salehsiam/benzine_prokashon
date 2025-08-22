@@ -2,6 +2,7 @@ import { ShoppingCart, Heart } from "lucide-react";
 import React from "react";
 import { useCart } from "../../../Provider/CartContext";
 import { getDiscountedPrice, toBanglaNumber } from "../../../lib/utils";
+import { Link } from "react-router-dom";
 
 const BookCard = ({ book }) => {
   const { addToCart } = useCart();
@@ -42,12 +43,11 @@ const BookCard = ({ book }) => {
 
           {/* Buttons */}
           <div className="flex gap-2">
-            <button
-              // onClick={() => addToCart(book)}
-              className="bg-blue-400 text-white w-full px-2 py-1 rounded-md flex justify-center items-center gap-1 text-sm hover:bg-primary/90"
-            >
-              Details
-            </button>
+            <Link to={`/book-details/${book?._id}`}>
+              <button className="bg-blue-400 text-white w-full px-2 py-1 rounded-md flex justify-center items-center gap-1 text-sm hover:bg-primary/90">
+                Details
+              </button>
+            </Link>
             <button
               onClick={() => addToCart(book)}
               className="bg-blue-400 text-white w-full px-2 py-1 rounded-md flex justify-center items-center gap-1 text-sm hover:bg-primary/90"
