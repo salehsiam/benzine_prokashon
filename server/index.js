@@ -25,6 +25,55 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     const booksCollection = client.db("benzine_prokashon").collection("books");
+    const bannerCollection = client
+      .db("benzine_prokashon")
+      .collection("banners");
+
+    // banner manager
+
+    app.get("/banners", async (req, res) => {
+      try {
+        let banner = await bannerCollection.findOne({});
+
+        if (!banner) {
+          const defaultBanner = {
+            main: [],
+          };
+          await bannerCollection.insertOne(defaultBanner);
+          banner = defaultBanner;
+        } else {
+          // Ensure all fields are present
+          banner.main = banner.main || [];
+        }
+
+        res.json(banner);
+      } catch (error) {
+        console.error("GET /banners error:", error);
+        res.status(500).json({ message: "Server error" });
+      }
+    });
+
+    app.put("/banners", async (req, res) => {
+      try {
+        const { main } = req.body;
+
+        // Basic validation
+        if (!main || !Array.isArray(main)) {
+          return res.status(400).json({ message: "Invalid banner data" });
+        }
+
+        const result = await bannerCollection.updateOne(
+          {},
+          { $set: { main } },
+          { upsert: true }
+        );
+
+        res.json({ message: "Banner updated successfully" });
+      } catch (error) {
+        console.error("PUT /banners error:", error);
+        res.status(500).json({ message: "Server error" });
+      }
+    });
 
     // books apis
 

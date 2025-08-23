@@ -11,6 +11,7 @@ import InputSellingDetails from "../Pages/Admin/InputSellingDetails";
 import AllBooks from "../Pages/User/AllBooks";
 import CartPage from "../Pages/User/CartPage";
 import BookDetails from "../Pages/User/BookDetails";
+import BannerManagement from "../Pages/Admin/BannerManagement";
 
 const router = createBrowserRouter([
   {
@@ -63,6 +64,10 @@ const router = createBrowserRouter([
       {
         path: "input-selling-details",
         element: <InputSellingDetails />,
+      },
+      {
+        path: "manage-banners",
+        element: <BannerManagement />,
       },
     ],
   },

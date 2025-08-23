@@ -19,6 +19,7 @@ import {
   BriefcaseBusiness,
   LibraryBig,
   DiamondPlus,
+  Wrench,
 } from "lucide-react"; // icons
 import { CiLogout } from "react-icons/ci";
 import useAuth from "../../Hooks/useAuth";
@@ -91,6 +92,15 @@ export function AppSidebar() {
                   <Link to="/dashboard/sell-details">
                     <BriefcaseBusiness className="mr-2 h-4 w-4" />
                     Sell Details
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              {/* Banner Manager */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/dashboard/manage-banners">
+                    <Wrench className="mr-2 h-4 w-4" />
+                    Manage Banners
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
