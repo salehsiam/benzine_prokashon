@@ -118,3 +118,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #bill-section,
+  #bill-section * {
+    visibility: visible;
+  }
+  #bill-section {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+}

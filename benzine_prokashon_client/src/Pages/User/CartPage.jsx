@@ -32,7 +32,7 @@ const CartPage = () => {
     const msg = generateMessage();
 
     navigator.clipboard.writeText(msg).then(() => {
-      toast("✅ অর্ডার মেসেজ কপি হয়েছে। WhatsApp এ গিয়ে Paste করুন।");
+      toast(" অর্ডার মেসেজ কপি হয়েছে। WhatsApp এ গিয়ে Paste করুন।");
       setTimeout(() => {
         window.open(`https://wa.me/${phoneNumber}`, "_blank");
       }, 2000);
@@ -46,7 +46,7 @@ const CartPage = () => {
 
     // Copy to clipboard
     navigator.clipboard.writeText(msg).then(() => {
-      toast("✅ আপনার অর্ডার মেসেজ কপি হয়েছে। Messenger এ গিয়ে Paste করুন।");
+      toast(" আপনার অর্ডার মেসেজ কপি হয়েছে। Messenger এ গিয়ে Paste করুন।");
 
       // ⏳ wait 2 seconds before opening FB Messenger
       setTimeout(() => {

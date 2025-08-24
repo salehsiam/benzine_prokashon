@@ -1,4 +1,3 @@
-import { ShoppingCart, Heart } from "lucide-react";
 import React from "react";
 import { useCart } from "../../../Provider/CartContext";
 import { getDiscountedPrice, toBanglaNumber } from "../../../lib/utils";

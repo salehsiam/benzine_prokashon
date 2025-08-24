@@ -23,10 +23,12 @@ import {
 } from "lucide-react"; // icons
 import { CiLogout } from "react-icons/ci";
 import useAuth from "../../Hooks/useAuth";
+import useAdmin from "../../Hooks/useAdmin";
 // import logo from "./../../assets/logo.png";
 
 export function AppSidebar() {
   const { user, logOut } = useAuth();
+  const [isAdmin, isAdminLoading] = useAdmin();
   const handleLogout = async () => {
     try {
       await logOut();
@@ -50,61 +52,65 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>Dashboard Menu</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {/* Home */}
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/dashboard">
-                    <Home className="mr-2 h-4 w-4" /> Home
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+            {isAdmin && (
+              <>
+                <SidebarMenu>
+                  {/* Home */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/dashboard">
+                        <Home className="mr-2 h-4 w-4" /> Home
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
 
-              {/* Add Books */}
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/dashboard/add-books">
-                    <PlusSquare className="mr-2 h-4 w-4" /> Add Books
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+                  {/* Add Books */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/dashboard/add-books">
+                        <PlusSquare className="mr-2 h-4 w-4" /> Add Books
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
 
-              {/* Manage Books */}
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/dashboard/manage-books">
-                    <BookOpen className="mr-2 h-4 w-4" /> Manage Books
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              {/* Input Sell Details */}
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/dashboard/input-selling-details">
-                    <DiamondPlus className="mr-2 h-4 w-4" />
-                    Add Sell Details
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              {/* Sell Details */}
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/dashboard/sell-details">
-                    <BriefcaseBusiness className="mr-2 h-4 w-4" />
-                    Sell Details
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              {/* Banner Manager */}
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/dashboard/manage-banners">
-                    <Wrench className="mr-2 h-4 w-4" />
-                    Manage Banners
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
+                  {/* Manage Books */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/dashboard/manage-books">
+                        <BookOpen className="mr-2 h-4 w-4" /> Manage Books
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  {/* Input Sell Details */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/dashboard/input-selling-details">
+                        <DiamondPlus className="mr-2 h-4 w-4" />
+                        Add Sell Details
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  {/* Sell Details */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/dashboard/sell-details">
+                        <BriefcaseBusiness className="mr-2 h-4 w-4" />
+                        Sell Details
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  {/* Banner Manager */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/dashboard/manage-banners">
+                        <Wrench className="mr-2 h-4 w-4" />
+                        Manage Banners
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </>
+            )}
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>

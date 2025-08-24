@@ -13,10 +13,12 @@ import { Input } from "../../ui/input";
 import { toast } from "sonner"; // or your toast library
 import useAuth from "../../../Hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import useAxiosPublic from "../../../Hooks/useAxiosPublic";
 
 const LoginForm = () => {
   const { signInUser, googleSignIn } = useAuth();
   const navigate = useNavigate();
+  const axiosPublic = useAxiosPublic();
 
   const form = useForm({
     defaultValues: {
@@ -39,13 +41,28 @@ const LoginForm = () => {
 
   const handleGoogleLogin = async () => {
     try {
-      await googleSignIn();
-      navigate("/");
-      toast.success("Logged in with Google!");
+      const result = await googleSignIn();
+      const user = result.user;
+
+      const userData = {
+        name: user.displayName,
+        email: user.email,
+        role: "user",
+        status: "active",
+        image: user.photoURL,
+        time: new Date().toISOString(),
+      };
+
+      const res = await axiosPublic.get(`/users/${user.email}`);
+      if (!res.data) {
+        await axiosPublic.post("/users", userData);
+      }
     } catch (err) {
       console.error(err);
-      toast.error("Google login failed!");
+      // toast.error("Google login failed!");
     }
+    // toast("Signed in with Google!");
+    navigate("/");
   };
 
   return (

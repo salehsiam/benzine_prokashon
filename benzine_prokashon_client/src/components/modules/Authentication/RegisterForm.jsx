@@ -13,10 +13,12 @@ import { Input } from "../../ui/input";
 import { toast } from "sonner";
 import useAuth from "../../../Hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import useAxiosPublic from "../../../Hooks/useAxiosPublic";
 
 const RegisterForm = () => {
   const { createUser, googleSignIn } = useAuth();
   const navigate = useNavigate();
+  const axiosPublic = useAxiosPublic();
 
   const form = useForm({
     defaultValues: {
@@ -34,8 +36,23 @@ const RegisterForm = () => {
         return;
       }
 
-      // Call Firebase (or your auth system)
-      await createUser(data.email, data.password);
+      // Create Firebase Auth user
+      const result = await createUser(data.email, data.password);
+      const user = result.user;
+
+      const userData = {
+        name: data.name,
+        email: data.email,
+        role: "user",
+        status: "active",
+        image: user?.photoURL || "",
+        time: new Date().toISOString(),
+      };
+
+      const res = await axiosPublic.get(`/users/${user.email}`);
+      if (!res.data) {
+        await axiosPublic.post("/users", userData);
+      }
 
       toast.success("Registered successfully!");
       form.reset(); // Clear form after successful submit
@@ -43,18 +60,34 @@ const RegisterForm = () => {
       console.error(err);
       toast.error(err.message || "Registration failed!");
     }
+    navigate("/");
   };
 
   // Google Signin
   const handleGoogle = async () => {
     try {
-      await googleSignIn();
-      toast("Signed in with Google!");
-      navigate("/");
+      const result = await googleSignIn();
+      const user = result.user;
+
+      const userData = {
+        name: user.displayName,
+        email: user.email,
+        role: "user",
+        status: "active",
+        image: user.photoURL,
+        time: new Date().toISOString(),
+      };
+
+      const res = await axiosPublic.get(`/users/${user.email}`);
+      if (!res.data) {
+        await axiosPublic.post("/users", userData);
+      }
     } catch (err) {
       console.error(err);
-      toast("Google sign-in failed!");
+      // toast.error("Google login failed!");
     }
+    // toast("Signed in with Google!");
+    navigate("/");
   };
 
   return (

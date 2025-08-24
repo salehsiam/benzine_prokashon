@@ -11,6 +11,7 @@ import logo from "../../assets/logo.png";
 import useAuth from "../../Hooks/useAuth";
 import { BookHeart, LogOut, ShoppingCart, UserRoundPlus } from "lucide-react";
 import debounce from "lodash/debounce";
+import useAdmin from "../../Hooks/useAdmin";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,14 +20,14 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const pathname = location.pathname;
+  const [isAdmin, isAdminLoading] = useAdmin();
   const [searchInput, setSearchInput] = useState(
     searchParams.get("search") || ""
   );
-
   const navLinks = [
     { name: "হোম", href: "/" },
     { name: "সকল বই", href: "/all-books" },
-    { name: "ড্যাশবোর্ড", href: "/dashboard" },
+    ...(isAdmin ? [{ name: "ড্যাশবোর্ড", href: "/dashboard" }] : []),
     { name: "যোগাযোগ", href: "/contact" },
   ];
 
