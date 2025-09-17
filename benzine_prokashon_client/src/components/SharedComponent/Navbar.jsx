@@ -71,7 +71,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="w-full px-4 py-6 z-50 bg-white fixed top-0 left-0 shadow-md">
+      <nav className="w-full px-4 py-4 z-50 bg-white fixed top-0 left-0 shadow-md">
         <div className="max-w-7xl mx-auto w-full relative flex items-center justify-between">
           <div className="flex-shrink-0 z-10">
             <Link to="/" className="hover:text-primary flex items-center">

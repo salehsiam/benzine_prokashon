@@ -24,19 +24,20 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     const booksCollection = client.db("benzine_prokashon").collection("books");
     const bannerCollection = client
       .db("benzine_prokashon")
       .collection("banners");
     const userCollection = client.db("benzine_prokashon").collection("users");
+    const sellsCollection = client.db("benzine_prokashon").collection("sells");
 
     // jwt apis
 
     app.post("/jwt", async (req, res) => {
       const user = req.body;
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "1h",
+        expiresIn: "8h",
       });
       res.send({ token });
     });
@@ -88,20 +89,295 @@ async function run() {
     });
 
     // user apis
+    // Get all users (with search)
+    // Get all users with optional search and pagination
+    app.get("/users", async (req, res) => {
+      try {
+        const search = req.query.search || "";
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        let query = {};
+        if (search) {
+          query = {
+            $or: [
+              { name: { $regex: search, $options: "i" } },
+              { email: { $regex: search, $options: "i" } },
+            ],
+          };
+        }
+
+        const totalUsers = await userCollection.countDocuments(query);
+        const users = await userCollection
+          .find(query)
+          .sort({ _id: -1 })
+          .skip(skip)
+          .limit(limit)
+          .toArray();
+
+        res.json({ users, totalUsers, page, limit });
+      } catch (error) {
+        res.status(500).json({ message: "Error fetching users", error });
+      }
+    });
+
+    app.patch("/users/:id/role", async (req, res) => {
+      try {
+        const { id } = req.params;
+        const { role } = req.body;
+
+        // Allowed roles only
+        const allowedRoles = ["writer", "admin", "user"];
+        if (!allowedRoles.includes(role)) {
+          return res.status(400).json({ message: "Invalid role" });
+        }
+
+        const result = await userCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: { role } }
+        );
+
+        if (result.modifiedCount === 0) {
+          return res
+            .status(404)
+            .json({ message: "User not found or role unchanged" });
+        }
+
+        res.json({ message: "Role updated successfully", role });
+      } catch (error) {
+        res.status(500).json({ message: "Error updating role", error });
+      }
+    });
     app.post("/users", async (req, res) => {
       const user = req.body;
       const result = await userCollection.insertOne(user);
       res.send(result);
     });
 
-    app.get("users/:email", async (req, res) => {
+    app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
-      const query = { email: email };
+      const query = { email };
       const user = await userCollection.findOne(query);
+
       if (user) {
         res.json(user);
       } else {
         res.status(404).json({ message: "User not found" });
+      }
+    });
+
+    // sells apis
+
+    /**
+     * API: Get total sales summary
+     * Query: ?period=day | month | year
+     */
+    // app.get("/sell-items", async (req, res) => {
+    //   try {
+    //     const { period, page = 1, limit = 20 } = req.query;
+    //     const pageNum = parseInt(page, 10);
+    //     const pageSize = parseInt(limit, 10);
+    //     const skip = (pageNum - 1) * pageSize;
+
+    //     const now = new Date();
+    //     let startDate;
+    //     if (period === "day")
+    //       startDate = new Date(
+    //         now.getFullYear(),
+    //         now.getMonth(),
+    //         now.getDate()
+    //       );
+    //     else if (period === "month")
+    //       startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    //     else if (period === "year")
+    //       startDate = new Date(now.getFullYear(), 0, 1);
+    //     else return res.status(400).json({ message: "Invalid period" });
+
+    //     const pipeline = [
+    //       { $match: { createdAt: { $gte: startDate } } },
+    //       { $unwind: "$items" },
+    //       // cast if your quantity/total are stored as strings
+    //       {
+    //         $addFields: {
+    //           "items.quantity": { $toInt: "$items.quantity" },
+    //           "items.total": { $toDouble: "$items.total" },
+    //         },
+    //       },
+    //       { $sort: { createdAt: -1, _id: -1 } },
+    //       {
+    //         $facet: {
+    //           rows: [
+    //             { $skip: skip },
+    //             { $limit: pageSize },
+    //             {
+    //               $project: {
+    //                 _id: 0,
+    //                 invoice: "$_id",
+    //                 createdAt: 1,
+    //                 role: 1,
+    //                 sellerName: 1,
+    //                 sellerEmail: 1,
+    //                 bookId: "$items.bookId",
+    //                 bookName: "$items.bookName",
+    //                 quantity: "$items.quantity",
+    //                 total: "$items.total",
+    //               },
+    //             },
+    //           ],
+    //           totalCount: [{ $count: "count" }],
+    //         },
+    //       },
+    //       {
+    //         $project: {
+    //           rows: 1,
+    //           totalCount: {
+    //             $ifNull: [{ $arrayElemAt: ["$totalCount.count", 0] }, 0],
+    //           },
+    //         },
+    //       },
+    //     ];
+
+    //     const [out] = await sellsCollection.aggregate(pipeline).toArray();
+    //     res.json(out); // { rows: [...], totalCount: number }
+    //   } catch (error) {
+    //     console.error("Error fetching sell-items:", error);
+    //     res.status(500).json({ message: "Internal server error" });
+    //   }
+    // });
+
+    app.get("/sell-items", async (req, res) => {
+      try {
+        const { period = "day", page = 1, limit = 20, sellerEmail } = req.query;
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const pageLimit = parseInt(limit);
+
+        const filter = {};
+        if (sellerEmail) {
+          filter.sellerEmail = sellerEmail;
+        }
+
+        const now = new Date();
+        if (period === "day") {
+          const start = new Date(now.setHours(0, 0, 0, 0));
+          filter.createdAt = { $gte: start };
+        } else if (period === "month") {
+          const start = new Date(now.getFullYear(), now.getMonth(), 1);
+          filter.createdAt = { $gte: start };
+        } else if (period === "year") {
+          const start = new Date(now.getFullYear(), 0, 1);
+          filter.createdAt = { $gte: start };
+        }
+
+        const totalCount = await sellsCollection.countDocuments(filter);
+
+        const rows = await sellsCollection
+          .find(filter)
+          .skip(skip)
+          .limit(pageLimit)
+          .sort({ createdAt: -1 })
+          .toArray();
+
+        res.json({
+          rows,
+          totalCount,
+          currentPage: parseInt(page),
+          totalPages: Math.ceil(totalCount / pageLimit),
+        });
+      } catch (error) {
+        console.error("Error fetching sell items:", error);
+        res.status(500).json({ message: "Server error" });
+      }
+    });
+
+    app.post("/sales", async (req, res) => {
+      try {
+        const sales = req.body;
+        sales.createdAt = new Date();
+
+        const result = await sellsCollection.insertOne(sales);
+        res.send(result);
+      } catch (error) {
+        console.error("Error inserting sales:", error);
+        res.status(500).send({ error: "Failed to add sales" });
+      }
+    });
+
+    /**
+     * API: Get sales summary for specific book
+     * Example: /api/sales/book/68a85b494ca55e7c8edca0a7?period=month
+     */
+    app.get("/sales/books", async (req, res) => {
+      try {
+        const { period, startDate, endDate } = req.query;
+
+        let start, end;
+
+        if (startDate && endDate) {
+          // if frontend passes custom range
+          start = new Date(startDate);
+          end = new Date(endDate);
+        } else {
+          // fallback to predefined periods
+          const now = new Date();
+          if (period === "day") {
+            start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            end = new Date(
+              now.getFullYear(),
+              now.getMonth(),
+              now.getDate() + 1
+            );
+          } else if (period === "month") {
+            start = new Date(now.getFullYear(), now.getMonth(), 1);
+            end = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+          } else if (period === "year") {
+            start = new Date(now.getFullYear(), 0, 1);
+            end = new Date(now.getFullYear() + 1, 0, 1);
+          } else {
+            return res.status(400).json({ message: "Invalid period" });
+          }
+        }
+
+        const pipeline = [
+          { $match: { createdAt: { $gte: start, $lt: end } } },
+          { $unwind: "$items" },
+          {
+            $group: {
+              _id: "$items.bookId",
+              bookName: { $first: "$items.bookName" },
+              totalSalesAmount: { $sum: { $toDouble: "$items.total" } },
+              totalQuantity: { $sum: { $toInt: "$items.quantity" } },
+              orderCount: { $sum: 1 },
+              dates: { $addToSet: "$createdAt" },
+            },
+          },
+          { $sort: { totalSalesAmount: -1 } },
+        ];
+
+        const result = await sellsCollection.aggregate(pipeline).toArray();
+        res.json(result);
+      } catch (error) {
+        console.error("Error fetching book sales:", error);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    });
+
+    /**
+     * API: Get sales by specific seller or customer
+     * Example: /api/sales/seller/cosuwobaso@mailinator.com
+     */
+    app.get("/sales/seller/:email", async (req, res) => {
+      try {
+        const { email } = req.params;
+
+        const sales = await sellsCollection
+          .find({ sellerEmail: email })
+          .toArray();
+
+        res.json(sales);
+      } catch (error) {
+        console.error("Error fetching seller sales:", error);
+        res.status(500).json({ message: "Internal server error" });
       }
     });
 
@@ -175,6 +451,75 @@ async function run() {
       }
     });
 
+    /**
+     * PUT update book
+     */
+    app.put("/books/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+
+        if (!ObjectId.isValid(id)) {
+          return res.status(400).json({ message: "Invalid book ID" });
+        }
+
+        const updatedBook = req.body;
+
+        const updateDoc = {
+          $set: {
+            productNameBn: updatedBook.productNameBn,
+            productNameEn: updatedBook.productNameEn,
+            subtitle: updatedBook.subtitle,
+            isbn: updatedBook.isbn,
+            stock: updatedBook.stock,
+            authorName: updatedBook.authorName,
+            translatorName: updatedBook.translatorName,
+            listPrice: updatedBook.listPrice,
+            pages: updatedBook.pages,
+            discountType: updatedBook.discountType,
+            discountValue: updatedBook.discountValue,
+            description: updatedBook.description,
+            genres: updatedBook.genres,
+            authorEmail: updatedBook.authorEmail,
+            updatedBy: updatedBook.updatedBy,
+            updatedAt: new Date(updatedBook.updatedAt),
+          },
+        };
+
+        // only update coverImage if provided
+        if (updatedBook.coverImage) {
+          updateDoc.$set.coverImage = updatedBook.coverImage;
+        }
+
+        // only update bookPdf if provided
+        if (updatedBook.bookPdf) {
+          updateDoc.$set.bookPdf = updatedBook.bookPdf;
+        }
+
+        const result = await booksCollection.updateOne(
+          { _id: new ObjectId(id) },
+          updateDoc
+        );
+
+        res.json(result); // will include matchedCount & modifiedCount
+      } catch (err) {
+        console.error("Error updating book:", err);
+        res.status(500).json({ message: "Failed to update book" });
+      }
+    });
+
+    // Delete a book
+    app.delete("/books/:id", async (req, res) => {
+      try {
+        const id = new ObjectId(req.params.id);
+        const result = await booksCollection.deleteOne({ _id: id });
+        if (result.deletedCount === 0)
+          return res.status(404).json({ message: "Book not found" });
+        res.json({ message: "Book deleted successfully" });
+      } catch (err) {
+        res.status(500).json({ message: err.message });
+      }
+    });
+
     app.get("/books", async (req, res) => {
       try {
         const page = parseInt(req.query.page) || 1;
@@ -231,7 +576,7 @@ async function run() {
     });
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );

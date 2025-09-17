@@ -9,9 +9,9 @@ const BookCard = ({ book }) => {
   const discountedPrice = getDiscountedPrice(book);
 
   return (
-    <div className="bg-white w-48 shadow-md hover:shadow-lg transition p-4 flex flex-col">
+    <div className="bg-white w-40 md:w-48 shadow-md hover:shadow-lg transition p-4 flex flex-col">
       {/* Thumbnail */}
-      <div className="mx-auto h-44 bg-gray-100 overflow-hidden mb-4">
+      <div className="mx-auto h-40 md:h-48 bg-gray-100 overflow-hidden mb-4">
         <img
           src={book?.coverImage}
           alt={book?.productNameEn}
@@ -24,7 +24,7 @@ const BookCard = ({ book }) => {
         <h3 className="text-md font-bold mb-1 line-clamp-1">
           {book?.productNameBn}
         </h3>
-        <p className="text-sm text-gray-600 mb-2">{book?.translatorName}</p>
+        <p className="text-sm text-gray-600 mb-1">{book?.translatorName}</p>
 
         <div className="mt-auto">
           <div className="mt-auto">

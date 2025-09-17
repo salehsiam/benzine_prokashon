@@ -52,17 +52,17 @@ const BannerCarousel = () => {
       <Swiper
         modules={[Pagination, Navigation, Autoplay]}
         pagination={{ clickable: true }}
-        navigation
+        // navigation
         autoplay={{ delay: 5000, disableOnInteraction: false }}
         loop={true}
-        className="h-[400px]"
+        className="h-[200px] sm:h-[250px] md:h-[300px] lg:h-[400px]"
       >
         {banners.map((banner, index) => (
           <SwiperSlide key={index}>
             <img
               src={banner}
               alt={`Banner ${index + 1}`}
-              className="w-full h-[400px] object-cover"
+              className="w-full h-[200px] sm:h-[250px] md:h-[300px] lg:h-[400px] object-cover"
             />
           </SwiperSlide>
         ))}

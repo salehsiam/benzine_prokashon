@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 import useAxiosPublic from "../../../Hooks/useAxiosPublic";
 
 const LoginForm = () => {
-  const { signInUser, googleSignIn } = useAuth();
+  const { signIn, googleSignIn } = useAuth();
   const navigate = useNavigate();
   const axiosPublic = useAxiosPublic();
 
@@ -29,7 +29,7 @@ const LoginForm = () => {
 
   const onSubmit = async (data) => {
     try {
-      await signInUser(data.email, data.password);
+      await signIn(data.email, data.password);
       navigate("/");
       toast.success("Logged in successfully!");
       form.reset();

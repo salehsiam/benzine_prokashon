@@ -49,18 +49,26 @@ const RegisterForm = () => {
         time: new Date().toISOString(),
       };
 
-      const res = await axiosPublic.get(`/users/${user.email}`);
-      if (!res.data) {
-        await axiosPublic.post("/users", userData);
+      try {
+        const res = await axiosPublic.get(`/users/${user.email}`);
+        if (!res.data) {
+          await axiosPublic.post("/users", userData);
+        }
+      } catch (err) {
+        if (err.response && err.response.status === 404) {
+          await axiosPublic.post("/users", userData);
+        } else {
+          throw err; // rethrow other errors
+        }
       }
 
       toast.success("Registered successfully!");
-      form.reset(); // Clear form after successful submit
+      form.reset();
+      navigate("/");
     } catch (err) {
       console.error(err);
       toast.error(err.message || "Registration failed!");
     }
-    navigate("/");
   };
 
   // Google Signin
@@ -77,7 +85,6 @@ const RegisterForm = () => {
         image: user.photoURL,
         time: new Date().toISOString(),
       };
-
       const res = await axiosPublic.get(`/users/${user.email}`);
       if (!res.data) {
         await axiosPublic.post("/users", userData);

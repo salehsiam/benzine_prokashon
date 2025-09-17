@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -8,10 +8,41 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
 import useBooks from "../../../Hooks/useBooks";
+import { SquarePen, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../../ui/alert-dialog";
+import useAxiosSecure from "../../../Hooks/useAxiosSecure";
+import { useNavigate } from "react-router-dom";
 
 const ManageBooksTable = () => {
   const { books, refetch, isLoading } = useBooks();
+  const [selectedBook, setSelectedBook] = useState(null);
+  const axiosSecure = useAxiosSecure();
+  const navigate = useNavigate();
+
+  const handleDelete = async (bookId) => {
+    try {
+      await axiosSecure.delete(`/books/${bookId}`);
+      console.log("Deleted book ID:", bookId);
+      refetch();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  const handleEdit = (bookId) => {
+    navigate(`/dashboard/edit-book/${bookId}`);
+  };
   return (
     <Table>
       {/* <TableCaption>A list of your recent invoices.</TableCaption> */}
@@ -40,10 +71,41 @@ const ManageBooksTable = () => {
                 {book?.discountValue} ( {book?.discountType} )
               </TableCell>
               <TableCell>{book?.stock}</TableCell>
-              <TableCell className="text-right">
-                <button className="btn bg-blue-400 px-2 py-1 rounded-md">
-                  Edit
+              <TableCell className="text-right space-x-1">
+                <button
+                  onClick={() => handleEdit(book._id)}
+                  className="btn hover:bg-blue-400 px-2 py-1 rounded-md"
+                >
+                  <SquarePen className="h-4 w-4" />
                 </button>
+                {/* Delete Button with AlertDialog */}
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <button
+                      onClick={() => setSelectedBook(book._id)}
+                      className="btn hover:bg-red-500 px-2 py-1 rounded-md"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. Do you really want to
+                        delete "{book.productNameBn}"?
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => handleDelete(selectedBook)}
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </TableCell>
             </TableRow>
           );

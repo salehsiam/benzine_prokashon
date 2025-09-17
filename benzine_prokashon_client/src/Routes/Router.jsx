@@ -12,6 +12,10 @@ import AllBooks from "../Pages/User/AllBooks";
 import CartPage from "../Pages/User/CartPage";
 import BookDetails from "../Pages/User/BookDetails";
 import BannerManagement from "../Pages/Admin/BannerManagement";
+import Dashboard from "../Pages/Admin/Dashboard";
+import EditBook from "../Pages/Admin/EditBook";
+import BookSalesTable from "../Pages/Admin/BookSalesTable";
+import AllUsersPage from "../Pages/Admin/AllUsersPage";
 
 const router = createBrowserRouter([
   {
@@ -50,6 +54,10 @@ const router = createBrowserRouter([
     element: <DashboardLayout />,
     children: [
       {
+        path: "/dashboard",
+        element: <BookSalesTable />,
+      },
+      {
         path: "add-books",
         element: <AddBooks />,
       },
@@ -58,8 +66,16 @@ const router = createBrowserRouter([
         element: <ManageBooks />,
       },
       {
+        path: "edit-book/:id",
+        element: <EditBook />,
+      },
+      {
         path: "sell-details",
         element: <SellDetails />,
+      },
+      {
+        path: "all-users",
+        element: <AllUsersPage />,
       },
       {
         path: "input-selling-details",

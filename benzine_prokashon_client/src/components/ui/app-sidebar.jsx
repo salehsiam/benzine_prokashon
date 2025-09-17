@@ -20,6 +20,7 @@ import {
   LibraryBig,
   DiamondPlus,
   Wrench,
+  User,
 } from "lucide-react"; // icons
 import { CiLogout } from "react-icons/ci";
 import useAuth from "../../Hooks/useAuth";
@@ -105,6 +106,14 @@ export function AppSidebar() {
                       <Link to="/dashboard/manage-banners">
                         <Wrench className="mr-2 h-4 w-4" />
                         Manage Banners
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/dashboard/all-users">
+                        <User className="mr-2 h-4 w-4" />
+                        All Users
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
