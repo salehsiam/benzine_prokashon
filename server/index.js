@@ -268,34 +268,30 @@ async function run() {
         const now = new Date();
 
         if (period === "day") {
-          // Start of today (UTC)
-          const startOfDay = new Date(
-            Date.UTC(
-              now.getUTCFullYear(),
-              now.getUTCMonth(),
-              now.getUTCDate(),
-              0,
-              0,
-              0
-            )
-          );
+          const startOfDay = new Date(now);
+          startOfDay.setHours(0, 0, 0, 0);
           filter.createdAt = { $gte: startOfDay };
         } else if (period === "month") {
-          // Start of current month (UTC)
           const startOfMonth = new Date(
-            Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0)
+            now.getFullYear(),
+            now.getMonth(),
+            1,
+            0,
+            0,
+            0,
+            0
           );
           filter.createdAt = { $gte: startOfMonth };
         } else if (period === "year") {
-          // Start of current year (UTC)
-          const startOfYear = new Date(
-            Date.UTC(now.getUTCFullYear(), 0, 1, 0, 0, 0)
-          );
+          const startOfYear = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0);
           filter.createdAt = { $gte: startOfYear };
         } else if (period === "custom" && startDate && endDate) {
-          // Parse as UTC
-          const start = new Date(`${startDate}T00:00:00.000Z`);
-          const end = new Date(`${endDate}T23:59:59.999Z`);
+          const start = new Date(startDate);
+          start.setHours(0, 0, 0, 0);
+
+          const end = new Date(endDate);
+          end.setHours(23, 59, 59, 999);
+
           filter.createdAt = { $gte: start, $lte: end };
         }
 
@@ -355,48 +351,27 @@ async function run() {
         let start, end;
 
         if (startDate && endDate) {
-          // If frontend passes custom range
+          // Use custom range directly
           start = new Date(startDate);
           end = new Date(endDate);
+          // Ensure end includes the full last day
+          end.setHours(23, 59, 59, 999);
         } else {
-          // fallback to predefined periods
           const now = new Date();
 
-          // Get offset (BD = +6 → 360 minutes)
-          const offsetMinutes = now.getTimezoneOffset(); // e.g., -360 for BD
-          const localNow = new Date(now.getTime() - offsetMinutes * 60000);
-
           if (period === "day") {
-            const localStart = new Date(
-              localNow.getFullYear(),
-              localNow.getMonth(),
-              localNow.getDate()
+            start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            end = new Date(
+              now.getFullYear(),
+              now.getMonth(),
+              now.getDate() + 1
             );
-            const localEnd = new Date(
-              localNow.getFullYear(),
-              localNow.getMonth(),
-              localNow.getDate() + 1
-            );
-            start = new Date(localStart.getTime() + offsetMinutes * 60000);
-            end = new Date(localEnd.getTime() + offsetMinutes * 60000);
           } else if (period === "month") {
-            const localStart = new Date(
-              localNow.getFullYear(),
-              localNow.getMonth(),
-              1
-            );
-            const localEnd = new Date(
-              localNow.getFullYear(),
-              localNow.getMonth() + 1,
-              1
-            );
-            start = new Date(localStart.getTime() + offsetMinutes * 60000);
-            end = new Date(localEnd.getTime() + offsetMinutes * 60000);
+            start = new Date(now.getFullYear(), now.getMonth(), 1);
+            end = new Date(now.getFullYear(), now.getMonth() + 1, 1);
           } else if (period === "year") {
-            const localStart = new Date(localNow.getFullYear(), 0, 1);
-            const localEnd = new Date(localNow.getFullYear() + 1, 0, 1);
-            start = new Date(localStart.getTime() + offsetMinutes * 60000);
-            end = new Date(localEnd.getTime() + offsetMinutes * 60000);
+            start = new Date(now.getFullYear(), 0, 1);
+            end = new Date(now.getFullYear() + 1, 0, 1);
           } else {
             return res.status(400).json({ message: "Invalid period" });
           }

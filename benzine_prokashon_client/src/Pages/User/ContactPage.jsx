@@ -122,8 +122,7 @@ const ContactPage = () => {
         </div>
         <div className="p-4 border rounded-lg shadow-sm bg-blue-400 text-white">
           <h3 className="font-semibold mb-2">Address</h3>
-          <p>64, 65 Hazi Mohammad Ali Tower</p>
-          <p>66 K B Rudro Rd, Dhaka, Bangladesh</p>
+          <p>৩৮/এ, হাজী এ এন আলী টাওয়ার, বাংলাবাজার, ঢাকা-১১০০</p>
         </div>
       </div>
 
