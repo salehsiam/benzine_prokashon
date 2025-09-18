@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import useAuth from "./useAuth";
 
 const axiosSecure = axios.create({
-  // baseURL: "https://benzine-prokashon-g41m.onrender.com/",
-  baseURL: "http://localhost:5000/",
+  baseURL: "https://benzine-prokashon-g41m.onrender.com/",
+  // baseURL: "http://localhost:5000/",
 });
 
 // Flag to prevent adding interceptors multiple times
