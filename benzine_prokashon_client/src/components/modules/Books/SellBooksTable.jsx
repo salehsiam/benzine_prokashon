@@ -15,9 +15,18 @@ const SellBooksTable = () => {
   const [period, setPeriod] = useState("day");
   const [page, setPage] = useState(1);
   const [openRow, setOpenRow] = useState(null);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const limit = 20;
 
-  const { data, isLoading, isError } = useSellBooks({ period, page, limit });
+  const { data, isLoading, isError } = useSellBooks({
+    period,
+    page,
+    limit,
+    startDate: period === "custom" ? startDate : undefined,
+    endDate: period === "custom" ? endDate : undefined,
+  });
+
   const rows = data?.rows || [];
   const totalCount = data?.totalCount || 0;
   const totalPages = Math.max(1, Math.ceil(totalCount / limit));
@@ -36,7 +45,7 @@ const SellBooksTable = () => {
   return (
     <div className="space-y-4">
       {/* Filter */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 flex-wrap">
         <label htmlFor="period" className="font-medium">
           Filter by:
         </label>
@@ -52,7 +61,34 @@ const SellBooksTable = () => {
           <option value="day">Day</option>
           <option value="month">Month</option>
           <option value="year">Year</option>
+          <option value="custom">Custom</option>
         </select>
+
+        {period === "custom" && (
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="border rounded px-2 py-1"
+            />
+            <span>to</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="border rounded px-2 py-1"
+            />
+            <Button
+              onClick={() => {
+                setPage(1); // reset to first page on filter
+              }}
+              disabled={!startDate || !endDate}
+            >
+              Apply
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Table */}
@@ -108,7 +144,6 @@ const SellBooksTable = () => {
                           <TableHeader>
                             <TableRow>
                               <TableHead>Book Name</TableHead>
-                              {/* <TableHead>Book ID</TableHead> */}
                               <TableHead>Quantity</TableHead>
                               <TableHead>Total</TableHead>
                             </TableRow>
@@ -117,7 +152,6 @@ const SellBooksTable = () => {
                             {sale.items.map((book, i) => (
                               <TableRow key={i}>
                                 <TableCell>{book.bookName}</TableCell>
-                                {/* <TableCell>{book.bookId}</TableCell> */}
                                 <TableCell>{book.quantity}</TableCell>
                                 <TableCell>{book.total}</TableCell>
                               </TableRow>

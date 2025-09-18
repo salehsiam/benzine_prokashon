@@ -16,6 +16,8 @@ import Dashboard from "../Pages/Admin/Dashboard";
 import EditBook from "../Pages/Admin/EditBook";
 import BookSalesTable from "../Pages/Admin/BookSalesTable";
 import AllUsersPage from "../Pages/Admin/AllUsersPage";
+import AdminRoute from "./AdminRoute";
+import ContactPage from "../Pages/User/ContactPage";
 
 const router = createBrowserRouter([
   {
@@ -38,6 +40,10 @@ const router = createBrowserRouter([
         path: "cart",
         element: <CartPage />,
       },
+      {
+        path: "contact",
+        element: <ContactPage />,
+      },
     ],
   },
   {
@@ -51,31 +57,59 @@ const router = createBrowserRouter([
 
   {
     path: "/dashboard",
-    element: <DashboardLayout />,
+    element: (
+      <AdminRoute>
+        <DashboardLayout />
+      </AdminRoute>
+    ),
     children: [
       {
         path: "/dashboard",
-        element: <BookSalesTable />,
+        element: (
+          <AdminRoute>
+            <BookSalesTable />
+          </AdminRoute>
+        ),
       },
       {
         path: "add-books",
-        element: <AddBooks />,
+        element: (
+          <AdminRoute>
+            <AddBooks />
+          </AdminRoute>
+        ),
       },
       {
         path: "manage-books",
-        element: <ManageBooks />,
+        element: (
+          <AdminRoute>
+            <ManageBooks />
+          </AdminRoute>
+        ),
       },
       {
         path: "edit-book/:id",
-        element: <EditBook />,
+        element: (
+          <AdminRoute>
+            <EditBook />
+          </AdminRoute>
+        ),
       },
       {
         path: "sell-details",
-        element: <SellDetails />,
+        element: (
+          <AdminRoute>
+            <SellDetails />
+          </AdminRoute>
+        ),
       },
       {
         path: "all-users",
-        element: <AllUsersPage />,
+        element: (
+          <AdminRoute>
+            <AllUsersPage />
+          </AdminRoute>
+        ),
       },
       {
         path: "input-selling-details",

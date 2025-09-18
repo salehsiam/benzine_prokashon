@@ -248,7 +248,15 @@ async function run() {
 
     app.get("/sell-items", async (req, res) => {
       try {
-        const { period = "day", page = 1, limit = 20, sellerEmail } = req.query;
+        const {
+          period = "day",
+          page = 1,
+          limit = 20,
+          sellerEmail,
+          startDate,
+          endDate,
+        } = req.query;
+
         const skip = (parseInt(page) - 1) * parseInt(limit);
         const pageLimit = parseInt(limit);
 
@@ -258,15 +266,37 @@ async function run() {
         }
 
         const now = new Date();
+
         if (period === "day") {
-          const start = new Date(now.setHours(0, 0, 0, 0));
-          filter.createdAt = { $gte: start };
+          // Start of today (UTC)
+          const startOfDay = new Date(
+            Date.UTC(
+              now.getUTCFullYear(),
+              now.getUTCMonth(),
+              now.getUTCDate(),
+              0,
+              0,
+              0
+            )
+          );
+          filter.createdAt = { $gte: startOfDay };
         } else if (period === "month") {
-          const start = new Date(now.getFullYear(), now.getMonth(), 1);
-          filter.createdAt = { $gte: start };
+          // Start of current month (UTC)
+          const startOfMonth = new Date(
+            Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0)
+          );
+          filter.createdAt = { $gte: startOfMonth };
         } else if (period === "year") {
-          const start = new Date(now.getFullYear(), 0, 1);
-          filter.createdAt = { $gte: start };
+          // Start of current year (UTC)
+          const startOfYear = new Date(
+            Date.UTC(now.getUTCFullYear(), 0, 1, 0, 0, 0)
+          );
+          filter.createdAt = { $gte: startOfYear };
+        } else if (period === "custom" && startDate && endDate) {
+          // Parse as UTC
+          const start = new Date(`${startDate}T00:00:00.000Z`);
+          const end = new Date(`${endDate}T23:59:59.999Z`);
+          filter.createdAt = { $gte: start, $lte: end };
         }
 
         const totalCount = await sellsCollection.countDocuments(filter);
@@ -296,6 +326,17 @@ async function run() {
         sales.createdAt = new Date();
 
         const result = await sellsCollection.insertOne(sales);
+
+        // 2. Update stock for each sold book
+        const updatePromises = (sales.items || []).map((item) => {
+          const quantitySold = Number(item.quantity || 0);
+          return booksCollection.updateOne(
+            { _id: new ObjectId(item.bookId) },
+            { $inc: { stock: -quantitySold } } // decrease stock
+          );
+        });
+
+        await Promise.all(updatePromises);
         res.send(result);
       } catch (error) {
         console.error("Error inserting sales:", error);
@@ -314,25 +355,48 @@ async function run() {
         let start, end;
 
         if (startDate && endDate) {
-          // if frontend passes custom range
+          // If frontend passes custom range
           start = new Date(startDate);
           end = new Date(endDate);
         } else {
           // fallback to predefined periods
           const now = new Date();
+
+          // Get offset (BD = +6 → 360 minutes)
+          const offsetMinutes = now.getTimezoneOffset(); // e.g., -360 for BD
+          const localNow = new Date(now.getTime() - offsetMinutes * 60000);
+
           if (period === "day") {
-            start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            end = new Date(
-              now.getFullYear(),
-              now.getMonth(),
-              now.getDate() + 1
+            const localStart = new Date(
+              localNow.getFullYear(),
+              localNow.getMonth(),
+              localNow.getDate()
             );
+            const localEnd = new Date(
+              localNow.getFullYear(),
+              localNow.getMonth(),
+              localNow.getDate() + 1
+            );
+            start = new Date(localStart.getTime() + offsetMinutes * 60000);
+            end = new Date(localEnd.getTime() + offsetMinutes * 60000);
           } else if (period === "month") {
-            start = new Date(now.getFullYear(), now.getMonth(), 1);
-            end = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+            const localStart = new Date(
+              localNow.getFullYear(),
+              localNow.getMonth(),
+              1
+            );
+            const localEnd = new Date(
+              localNow.getFullYear(),
+              localNow.getMonth() + 1,
+              1
+            );
+            start = new Date(localStart.getTime() + offsetMinutes * 60000);
+            end = new Date(localEnd.getTime() + offsetMinutes * 60000);
           } else if (period === "year") {
-            start = new Date(now.getFullYear(), 0, 1);
-            end = new Date(now.getFullYear() + 1, 0, 1);
+            const localStart = new Date(localNow.getFullYear(), 0, 1);
+            const localEnd = new Date(localNow.getFullYear() + 1, 0, 1);
+            start = new Date(localStart.getTime() + offsetMinutes * 60000);
+            end = new Date(localEnd.getTime() + offsetMinutes * 60000);
           } else {
             return res.status(400).json({ message: "Invalid period" });
           }

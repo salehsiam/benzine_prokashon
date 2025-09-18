@@ -127,6 +127,9 @@ const InputSellingDetails = () => {
 
   return (
     <>
+      <h2 className="text-2xl font-semibold text-center my-2">
+        Create Invoice
+      </h2>
       <Form {...form}>
         <form
           onSubmit={handleSubmit(onSubmit)}
