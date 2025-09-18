@@ -246,11 +246,16 @@ async function run() {
     //   }
     // });
 
-    // Helper: always return Bangladesh time (UTC+6)
+    // Convert UTC → BD time
     function getBangladeshTime(date = new Date()) {
       const utc = date.getTime() + date.getTimezoneOffset() * 60000;
-      const bdOffset = 6 * 60 * 60 * 1000; // +6 hours in ms
+      const bdOffset = 6 * 60 * 60 * 1000; // +6 hours
       return new Date(utc + bdOffset);
+    }
+
+    // Convert BD → UTC (reverse shift)
+    function bdToUtc(date) {
+      return new Date(date.getTime() - 6 * 60 * 60 * 1000);
     }
 
     app.get("/sell-items", async (req, res) => {
@@ -272,11 +277,10 @@ async function run() {
           filter.sellerEmail = sellerEmail;
         }
 
-        // Always use BD local time
-        const now = getBangladeshTime();
+        const now = getBangladeshTime(); // always BD time
 
         if (period === "day") {
-          const startOfDay = new Date(
+          const bdStart = new Date(
             now.getFullYear(),
             now.getMonth(),
             now.getDate(),
@@ -285,9 +289,19 @@ async function run() {
             0,
             0
           );
-          filter.createdAt = { $gte: startOfDay };
+          const bdEnd = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate() + 1,
+            0,
+            0,
+            0,
+            0
+          );
+
+          filter.createdAt = { $gte: bdToUtc(bdStart), $lt: bdToUtc(bdEnd) };
         } else if (period === "month") {
-          const startOfMonth = new Date(
+          const bdStart = new Date(
             now.getFullYear(),
             now.getMonth(),
             1,
@@ -296,18 +310,30 @@ async function run() {
             0,
             0
           );
-          filter.createdAt = { $gte: startOfMonth };
+          const bdEnd = new Date(
+            now.getFullYear(),
+            now.getMonth() + 1,
+            1,
+            0,
+            0,
+            0,
+            0
+          );
+
+          filter.createdAt = { $gte: bdToUtc(bdStart), $lt: bdToUtc(bdEnd) };
         } else if (period === "year") {
-          const startOfYear = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0);
-          filter.createdAt = { $gte: startOfYear };
+          const bdStart = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0);
+          const bdEnd = new Date(now.getFullYear() + 1, 0, 1, 0, 0, 0, 0);
+
+          filter.createdAt = { $gte: bdToUtc(bdStart), $lt: bdToUtc(bdEnd) };
         } else if (period === "custom" && startDate && endDate) {
-          const start = new Date(startDate);
-          start.setHours(0, 0, 0, 0);
+          const bdStart = new Date(startDate);
+          bdStart.setHours(0, 0, 0, 0);
 
-          const end = new Date(endDate);
-          end.setHours(23, 59, 59, 999);
+          const bdEnd = new Date(endDate);
+          bdEnd.setHours(23, 59, 59, 999);
 
-          filter.createdAt = { $gte: start, $lte: end };
+          filter.createdAt = { $gte: bdToUtc(bdStart), $lte: bdToUtc(bdEnd) };
         }
 
         const totalCount = await sellsCollection.countDocuments(filter);
