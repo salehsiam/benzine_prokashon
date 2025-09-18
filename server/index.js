@@ -246,6 +246,13 @@ async function run() {
     //   }
     // });
 
+    // Helper: always return Bangladesh time (UTC+6)
+    function getBangladeshTime(date = new Date()) {
+      const utc = date.getTime() + date.getTimezoneOffset() * 60000;
+      const bdOffset = 6 * 60 * 60 * 1000; // +6 hours in ms
+      return new Date(utc + bdOffset);
+    }
+
     app.get("/sell-items", async (req, res) => {
       try {
         const {
@@ -265,11 +272,19 @@ async function run() {
           filter.sellerEmail = sellerEmail;
         }
 
-        const now = new Date();
+        // Always use BD local time
+        const now = getBangladeshTime();
 
         if (period === "day") {
-          const startOfDay = new Date(now);
-          startOfDay.setHours(0, 0, 0, 0);
+          const startOfDay = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+            0,
+            0,
+            0,
+            0
+          );
           filter.createdAt = { $gte: startOfDay };
         } else if (period === "month") {
           const startOfMonth = new Date(
@@ -344,6 +359,7 @@ async function run() {
      * API: Get sales summary for specific book
      * Example: /api/sales/book/68a85b494ca55e7c8edca0a7?period=month
      */
+
     app.get("/sales/books", async (req, res) => {
       try {
         const { period, startDate, endDate } = req.query;
@@ -351,13 +367,13 @@ async function run() {
         let start, end;
 
         if (startDate && endDate) {
-          // Use custom range directly
+          // Custom range (user provided)
           start = new Date(startDate);
           end = new Date(endDate);
-          // Ensure end includes the full last day
-          end.setHours(23, 59, 59, 999);
+          end.setHours(23, 59, 59, 999); // include whole last day
         } else {
-          const now = new Date();
+          // Always use BD local time instead of UTC
+          const now = getBangladeshTime();
 
           if (period === "day") {
             start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
