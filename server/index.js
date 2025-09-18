@@ -390,37 +390,48 @@ async function run() {
       try {
         const { period, startDate, endDate } = req.query;
 
-        let start, end;
+        let startBD, endBD;
 
         if (startDate && endDate) {
-          // Custom range (user provided)
-          start = new Date(startDate);
-          end = new Date(endDate);
-          end.setHours(23, 59, 59, 999); // include whole last day
+          // Custom range (BD local)
+          startBD = new Date(startDate);
+          startBD.setHours(0, 0, 0, 0);
+
+          endBD = new Date(endDate);
+          endBD.setHours(23, 59, 59, 999);
         } else {
-          // Always use BD local time instead of UTC
-          const now = getBangladeshTime();
+          // Always use BD local time
+          const nowBD = getBangladeshTime();
 
           if (period === "day") {
-            start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            end = new Date(
-              now.getFullYear(),
-              now.getMonth(),
-              now.getDate() + 1
-            );
+            startBD = new Date(nowBD);
+            startBD.setHours(0, 0, 0, 0);
+
+            endBD = new Date(nowBD);
+            endBD.setHours(23, 59, 59, 999);
           } else if (period === "month") {
-            start = new Date(now.getFullYear(), now.getMonth(), 1);
-            end = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+            startBD = new Date(nowBD.getFullYear(), nowBD.getMonth(), 1);
+            startBD.setHours(0, 0, 0, 0);
+
+            endBD = new Date(nowBD.getFullYear(), nowBD.getMonth() + 1, 0);
+            endBD.setHours(23, 59, 59, 999);
           } else if (period === "year") {
-            start = new Date(now.getFullYear(), 0, 1);
-            end = new Date(now.getFullYear() + 1, 0, 1);
+            startBD = new Date(nowBD.getFullYear(), 0, 1);
+            startBD.setHours(0, 0, 0, 0);
+
+            endBD = new Date(nowBD.getFullYear(), 11, 31);
+            endBD.setHours(23, 59, 59, 999);
           } else {
             return res.status(400).json({ message: "Invalid period" });
           }
         }
 
+        // 🔑 Convert BD range → UTC range for MongoDB
+        const start = bdToUtc(startBD);
+        const end = bdToUtc(endBD);
+
         const pipeline = [
-          { $match: { createdAt: { $gte: start, $lt: end } } },
+          { $match: { createdAt: { $gte: start, $lte: end } } },
           { $unwind: "$items" },
           {
             $group: {
