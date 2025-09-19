@@ -12,6 +12,7 @@ import {
 import { Worker, Viewer } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
+import { Skeleton } from "../../components/ui/skeleton";
 
 const BookDetails = () => {
   const axiosPublic = useAxiosPublic();
@@ -43,10 +44,30 @@ const BookDetails = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <p className="text-lg font-semibold text-gray-600">
-          Loading book details...
-        </p>
+      <div className="max-w-7xl mx-auto p-6 mt-32 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          {/* Skeleton for Book Cover */}
+          <Skeleton className="w-full max-w-sm aspect-[3/4] rounded-lg" />
+
+          {/* Skeleton for Book Info */}
+          <div className="space-y-4">
+            <Skeleton className="h-8 w-3/4 rounded" />
+            <Skeleton className="h-6 w-1/2 rounded" />
+            <Skeleton className="h-4 w-full rounded" />
+            <Skeleton className="h-4 w-5/6 rounded" />
+            <Skeleton className="h-4 w-3/4 rounded" />
+            <Skeleton className="h-10 w-32 rounded" />
+            <Skeleton className="h-10 w-32 rounded" />
+          </div>
+        </div>
+
+        {/* Skeleton for Description */}
+        <div className="bg-gray-50 p-6 rounded-xl shadow-sm space-y-2">
+          <Skeleton className="h-6 w-1/3 rounded" />
+          <Skeleton className="h-4 w-full rounded" />
+          <Skeleton className="h-4 w-5/6 rounded" />
+          <Skeleton className="h-4 w-4/6 rounded" />
+        </div>
       </div>
     );
   }
@@ -73,18 +94,18 @@ const BookDetails = () => {
     <div className="max-w-7xl mx-auto p-6 mt-32">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         {/* Book Cover */}
-        <div className="flex justify-center items-start">
-          <div className="w-full max-w-sm aspect-[3/4] border shadow-md overflow-hidden">
+        <div className="flex justify-center items-start px-16">
+          <div className="w-full border shadow-md overflow-hidden rounded-lg">
             <img
               src={book?.coverImage}
               alt={book?.productNameEn}
-              className=""
+              className="w-full h-auto object-contain"
             />
           </div>
         </div>
 
         {/* Book Info */}
-        <div className="flex flex-col justify-between">
+        <div className="flex flex-col justify-between ">
           <div>
             <h1 className="text-3xl font-bold mb-2">{book?.productNameBn}</h1>
             <h2 className="text-lg md:text-xl text-gray-600 mb-4">
@@ -183,15 +204,17 @@ const BookDetails = () => {
             <DialogTitle>বইয়ের অংশ পড়ুন</DialogTitle>
           </DialogHeader>
           <div className="h-full w-full">
-            {/* {book.bookPdf ? (
-              <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-                <Viewer fileUrl={book.bookPdf} />
-              </Worker>
+            {book.bookPdf ? (
+              <iframe
+                src={book.bookPdf}
+                className="w-full h-full"
+                title="PDF Reader"
+              />
             ) : (
               <div className="flex items-center justify-center h-full text-gray-500">
                 No preview available
               </div>
-            )} */}
+            )}
           </div>
         </DialogContent>
       </Dialog>

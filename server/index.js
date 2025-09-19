@@ -2,6 +2,10 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+// const multer = require("multer");
+// const fs = require("fs");
+
+// const path = require("path");
 
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
@@ -551,7 +555,7 @@ async function run() {
     /**
      * PUT update book
      */
-    app.put("/books/:id", verifyToken, verifyAdmin, async (req, res) => {
+    app.put("/books/:id", async (req, res) => {
       try {
         const { id } = req.params;
 

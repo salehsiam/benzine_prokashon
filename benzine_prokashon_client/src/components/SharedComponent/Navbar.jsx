@@ -12,6 +12,7 @@ import useAuth from "../../Hooks/useAuth";
 import { BookHeart, LogOut, ShoppingCart, UserRoundPlus } from "lucide-react";
 import debounce from "lodash/debounce";
 import useAdmin from "../../Hooks/useAdmin";
+import { useCart } from "../../Provider/CartContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,6 +22,7 @@ const Navbar = () => {
   const location = useLocation();
   const pathname = location.pathname;
   const [isAdmin, isAdminLoading] = useAdmin();
+  const { cart } = useCart();
   const [searchInput, setSearchInput] = useState(
     searchParams.get("search") || ""
   );
@@ -110,10 +112,13 @@ const Navbar = () => {
               />
             </div>
 
-            <button className="px-4 py-2 text-2xl hover:bg-opacity-90 transition border-r">
+            <button className="relative px-4 py-2 text-2xl hover:bg-opacity-90 transition border-r">
               <Link to="/cart" className="flex items-center gap-1">
                 <ShoppingCart />
               </Link>
+              <span className="absolute -top-1 right-0 bg-red-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
+                {cart.length}
+              </span>
             </button>
 
             {user ? (
@@ -133,6 +138,17 @@ const Navbar = () => {
           </div>
 
           <div className="md:hidden z-10">
+            <button className="relative px-4 py-2 text-2xl hover:bg-opacity-90 transition mr-2">
+              <Link to="/cart" className="flex items-center gap-1">
+                <ShoppingCart />
+
+                {/* Show total */}
+
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
+                  {cart.length}
+                </span>
+              </Link>
+            </button>
             <button onClick={() => setIsOpen(true)}>
               <svg
                 className="w-6 h-6"
