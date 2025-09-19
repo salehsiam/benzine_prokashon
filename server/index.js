@@ -91,7 +91,7 @@ async function run() {
     // user apis
     // Get all users (with search)
     // Get all users with optional search and pagination
-    app.get("/users", async (req, res) => {
+    app.get("/users", verifyToken, verifyAdmin, async (req, res) => {
       try {
         const search = req.query.search || "";
         const page = parseInt(req.query.page) || 1;
@@ -122,7 +122,7 @@ async function run() {
       }
     });
 
-    app.patch("/users/:id/role", async (req, res) => {
+    app.patch("/users/:id/role", verifyAdmin, async (req, res) => {
       try {
         const { id } = req.params;
         const { role } = req.body;
@@ -258,7 +258,7 @@ async function run() {
       return new Date(date.getTime() - 6 * 60 * 60 * 1000);
     }
 
-    app.get("/sell-items", async (req, res) => {
+    app.get("/sell-items", verifyToken, verifyAdmin, async (req, res) => {
       try {
         const {
           period = "day",
@@ -357,7 +357,7 @@ async function run() {
       }
     });
 
-    app.post("/sales", async (req, res) => {
+    app.post("/sales", verifyToken, verifyAdmin, async (req, res) => {
       try {
         const sales = req.body;
         sales.createdAt = new Date();
@@ -386,7 +386,7 @@ async function run() {
      * Example: /api/sales/book/68a85b494ca55e7c8edca0a7?period=month
      */
 
-    app.get("/sales/books", async (req, res) => {
+    app.get("/sales/books", verifyToken, verifyAdmin, async (req, res) => {
       try {
         const { period, startDate, endDate } = req.query;
 
@@ -458,20 +458,25 @@ async function run() {
      * API: Get sales by specific seller or customer
      * Example: /api/sales/seller/cosuwobaso@mailinator.com
      */
-    app.get("/sales/seller/:email", async (req, res) => {
-      try {
-        const { email } = req.params;
+    app.get(
+      "/sales/seller/:email",
+      verifyToken,
+      verifyAdmin,
+      async (req, res) => {
+        try {
+          const { email } = req.params;
 
-        const sales = await sellsCollection
-          .find({ sellerEmail: email })
-          .toArray();
+          const sales = await sellsCollection
+            .find({ sellerEmail: email })
+            .toArray();
 
-        res.json(sales);
-      } catch (error) {
-        console.error("Error fetching seller sales:", error);
-        res.status(500).json({ message: "Internal server error" });
+          res.json(sales);
+        } catch (error) {
+          console.error("Error fetching seller sales:", error);
+          res.status(500).json({ message: "Internal server error" });
+        }
       }
-    });
+    );
 
     // banner manager
 
@@ -546,7 +551,7 @@ async function run() {
     /**
      * PUT update book
      */
-    app.put("/books/:id", async (req, res) => {
+    app.put("/books/:id", verifyToken, verifyAdmin, async (req, res) => {
       try {
         const { id } = req.params;
 
@@ -600,7 +605,7 @@ async function run() {
     });
 
     // Delete a book
-    app.delete("/books/:id", async (req, res) => {
+    app.delete("/books/:id", verifyToken, verifyAdmin, async (req, res) => {
       try {
         const id = new ObjectId(req.params.id);
         const result = await booksCollection.deleteOne({ _id: id });

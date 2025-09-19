@@ -21,6 +21,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../../components/ui/card";
+import { Skeleton } from "../../components/ui/skeleton";
 
 const BookSalesTable = () => {
   const [sales, setSales] = useState([]);
@@ -35,7 +36,6 @@ const BookSalesTable = () => {
         setLoading(true);
         let url = `/sales/books?period=${period}`;
 
-        // if custom range is selected
         if (period === "custom" && customRange.start && customRange.end) {
           url = `/sales/books?startDate=${customRange.start}&endDate=${customRange.end}`;
         }
@@ -97,7 +97,24 @@ const BookSalesTable = () => {
       </CardHeader>
       <CardContent>
         {loading ? (
-          <p className="text-center py-4">Loading...</p>
+          <div className="space-y-3">
+            {/* Table header skeleton */}
+            <div className="grid grid-cols-4 gap-4">
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="h-6 w-40" />
+              <Skeleton className="h-6 w-36" />
+              <Skeleton className="h-6 w-28" />
+            </div>
+            {/* Table rows skeleton */}
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="grid grid-cols-4 gap-4">
+                <Skeleton className="h-6 w-32" />
+                <Skeleton className="h-6 w-40" />
+                <Skeleton className="h-6 w-36" />
+                <Skeleton className="h-6 w-28" />
+              </div>
+            ))}
+          </div>
         ) : (
           <Table>
             <TableHeader>

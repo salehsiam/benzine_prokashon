@@ -6,6 +6,7 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { Pagination, Navigation, Autoplay } from "swiper/modules";
 import useAxiosPublic from "../../../Hooks/useAxiosPublic";
+import { Skeleton } from "../../ui/skeleton";
 
 const BannerCarousel = () => {
   const axiosPublic = useAxiosPublic();
@@ -25,8 +26,16 @@ const BannerCarousel = () => {
 
   if (isLoading) {
     return (
-      <div className="h-[400px] flex items-center justify-center">
-        <p className="text-gray-500">Loading banners...</p>
+      <div className="p-4 bg-white rounded-2xl shadow-md w-full mx-auto">
+        {/* Image Placeholder */}
+        <Skeleton className="h-56 w-full rounded-xl mb-4" />
+
+        {/* Text Placeholders */}
+        <div className="space-y-3">
+          <Skeleton className="h-6 w-3/4 rounded-lg" />
+          <Skeleton className="h-4 w-1/2 rounded-lg" />
+          <Skeleton className="h-4 w-full rounded-lg" />
+        </div>
       </div>
     );
   }

@@ -133,7 +133,7 @@ const InputSellingDetails = () => {
       <Form {...form}>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="space-y-6 max-w-3xl mx-auto bg-white p-6 rounded-2xl shadow"
+          className="space-y-6 max-w-3xl mx-auto bg-white p-4 rounded-2xl shadow"
         >
           <div className="flex gap-4">
             <FormField
@@ -191,14 +191,14 @@ const InputSellingDetails = () => {
             {fields.map((item, index) => (
               <div
                 key={item.id}
-                className="grid grid-cols-12 gap-4 items-end border p-4 rounded-lg"
+                className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end border p-4 rounded-lg"
               >
                 {/* Book select with per-row search */}
                 <FormField
                   control={control}
                   name={`items.${index}.bookId`}
                   render={({ field }) => (
-                    <FormItem className="col-span-5">
+                    <FormItem className="md:col-span-5 w-full">
                       <FormLabel>Book</FormLabel>
                       <BookSelect
                         value={field.value}
@@ -214,7 +214,7 @@ const InputSellingDetails = () => {
                   control={control}
                   name={`items.${index}.quantity`}
                   render={({ field }) => (
-                    <FormItem className="col-span-3">
+                    <FormItem className="md:col-span-3 w-full">
                       <FormLabel>Quantity</FormLabel>
                       <FormControl>
                         <Input type="number" placeholder="0" {...field} />
@@ -228,7 +228,7 @@ const InputSellingDetails = () => {
                   control={control}
                   name={`items.${index}.total`}
                   render={({ field }) => (
-                    <FormItem className="col-span-3">
+                    <FormItem className="md:col-span-3 w-full">
                       <FormLabel>Total</FormLabel>
                       <FormControl>
                         <Input type="number" placeholder="0" {...field} />
@@ -238,11 +238,12 @@ const InputSellingDetails = () => {
                   )}
                 />
 
-                <div className="col-span-1 flex justify-end">
+                <div className="md:col-span-1 flex md:justify-end">
                   <Button
                     type="button"
                     variant="destructive"
                     onClick={() => remove(index)}
+                    className="w-full md:w-auto"
                   >
                     ✕
                   </Button>

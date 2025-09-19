@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import useBooks from "../../Hooks/useBooks";
 import BookCard from "../../components/modules/Books/BookCard";
 import GenreFilter from "../../components/modules/Books/GenreFilter";
+import { Skeleton } from "../../components/ui/skeleton";
 
 const AllBooks = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -103,13 +104,24 @@ const AllBooks = () => {
           </button>
         </div>
       </div>
+
       <GenreFilter />
+
       {error ? (
         <p className="text-red-500">
           Error: {error.message || "Failed to load books"}
         </p>
       ) : isLoading ? (
-        <p className="text-gray-500">Loading...</p>
+        // Skeleton Grid (18 placeholders)
+        <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          {[...Array(18)].map((_, i) => (
+            <div key={i} className="space-y-3">
+              <Skeleton className="h-48 w-full rounded-lg" /> {/* cover */}
+              <Skeleton className="h-5 w-3/4 rounded-lg" /> {/* title */}
+              <Skeleton className="h-4 w-1/2 rounded-lg" /> {/* author/price */}
+            </div>
+          ))}
+        </div>
       ) : books?.length === 0 ? (
         <p className="text-gray-500">No books found.</p>
       ) : (
@@ -119,6 +131,8 @@ const AllBooks = () => {
               <BookCard key={book._id} book={book} />
             ))}
           </div>
+
+          {/* Pagination */}
           <div className="flex items-center justify-center gap-2 mt-6">
             <button
               disabled={currentPage === 1}

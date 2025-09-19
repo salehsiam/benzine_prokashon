@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "../../components/ui/select";
 import { Button } from "../../components/ui/button";
+import { Skeleton } from "../../components/ui/skeleton";
 
 const AllUsersPage = () => {
   const axiosSecure = useAxiosSecure();
@@ -31,10 +32,13 @@ const AllUsersPage = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
+  const [loading, setLoading] = useState(false);
+
   const limit = 20; // users per page
 
   const fetchUsers = async () => {
     try {
+      setLoading(true);
       const res = await axiosSecure.get(
         `/users?search=${search}&page=${page}&limit=${limit}`
       );
@@ -42,6 +46,8 @@ const AllUsersPage = () => {
       setTotalUsers(res.data.totalUsers);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -81,7 +87,9 @@ const AllUsersPage = () => {
 
       <CardContent>
         <Table>
-          <TableCaption>List of all registered users</TableCaption>
+          <TableCaption>
+            {loading ? "Loading users..." : "List of all registered users"}
+          </TableCaption>
           <TableHeader>
             <TableRow>
               <TableHead>#</TableHead>
@@ -91,7 +99,25 @@ const AllUsersPage = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.length > 0 ? (
+            {loading ? (
+              // Skeleton loader
+              [...Array(5)].map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell>
+                    <Skeleton className="h-4 w-6" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-32" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-40" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-8 w-[120px] rounded-md" />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : users.length > 0 ? (
               users.map((user, index) => (
                 <TableRow key={user._id}>
                   <TableCell>{(page - 1) * limit + index + 1}</TableCell>
@@ -101,6 +127,7 @@ const AllUsersPage = () => {
                     <Select
                       value={user.role}
                       onValueChange={(val) => handleRoleChange(user._id, val)}
+                      disabled={loading}
                     >
                       <SelectTrigger className="w-[120px]">
                         <SelectValue placeholder="Select role" />
@@ -128,16 +155,16 @@ const AllUsersPage = () => {
         <div className="flex justify-center mt-4 gap-2">
           <Button
             onClick={() => setPage((p) => Math.max(p - 1, 1))}
-            disabled={page === 1}
+            disabled={page === 1 || loading}
           >
             Previous
           </Button>
           <span className="flex items-center px-2">
-            {page} / {totalPages}
+            {page} / {totalPages || 1}
           </span>
           <Button
             onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-            disabled={page === totalPages}
+            disabled={page === totalPages || loading}
           >
             Next
           </Button>

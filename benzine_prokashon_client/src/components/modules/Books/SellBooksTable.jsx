@@ -9,6 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import useSellBooks from "../../../Hooks/useSellBooks";
 
 const SellBooksTable = () => {
@@ -39,11 +40,8 @@ const SellBooksTable = () => {
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   };
 
-  if (isLoading) return <p>Loading...</p>;
-  if (isError) return <p>Error loading data</p>;
-
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Filter */}
       <div className="flex items-center gap-4 flex-wrap">
         <label htmlFor="period" className="font-medium">
@@ -80,9 +78,7 @@ const SellBooksTable = () => {
               className="border rounded px-2 py-1"
             />
             <Button
-              onClick={() => {
-                setPage(1); // reset to first page on filter
-              }}
+              onClick={() => setPage(1)}
               disabled={!startDate || !endDate}
             >
               Apply
@@ -108,7 +104,24 @@ const SellBooksTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.length ? (
+          {isLoading ? (
+            // Skeleton while loading
+            [...Array(5)].map((_, i) => (
+              <TableRow key={i}>
+                {[...Array(7)].map((_, j) => (
+                  <TableCell key={j}>
+                    <Skeleton className="h-5 w-24" />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : isError ? (
+            <TableRow>
+              <TableCell colSpan={7} className="text-center text-red-500">
+                Error loading data
+              </TableCell>
+            </TableRow>
+          ) : rows.length ? (
             rows.map((sale, index) => (
               <React.Fragment key={sale.invoice || index}>
                 {/* Main sale row */}
@@ -134,7 +147,7 @@ const SellBooksTable = () => {
                   </TableCell>
                 </TableRow>
 
-                {/* Expandable row with book details */}
+                {/* Expandable row */}
                 {openRow === index && (
                   <TableRow>
                     <TableCell colSpan={7}>
@@ -176,31 +189,32 @@ const SellBooksTable = () => {
 
       {/* Pagination */}
       <div className="flex justify-center gap-2">
-        <button
+        <Button
+          variant="outline"
+          size="sm"
           onClick={() => setPage((p) => Math.max(p - 1, 1))}
           disabled={page === 1}
-          className="px-3 py-1 border rounded disabled:opacity-50"
         >
           Prev
-        </button>
+        </Button>
         {getPageNumbers().map((p) => (
-          <button
+          <Button
             key={p}
             onClick={() => setPage(p)}
-            className={`px-3 py-1 border rounded ${
-              p === page ? "bg-blue-500 text-white" : ""
-            }`}
+            size="sm"
+            variant={p === page ? "default" : "outline"}
           >
             {p}
-          </button>
+          </Button>
         ))}
-        <button
+        <Button
+          variant="outline"
+          size="sm"
           onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
           disabled={page === totalPages}
-          className="px-3 py-1 border rounded disabled:opacity-50"
         >
           Next
-        </button>
+        </Button>
       </div>
     </div>
   );
