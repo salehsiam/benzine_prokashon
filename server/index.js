@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+const moment = require("moment-timezone");
 
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
@@ -248,60 +249,29 @@ async function run() {
 
     // Convert UTC → BD time
 
-    // Helpers to handle BD time correctly
     function getBDStartOfDay(date = new Date()) {
-      // Convert current date to BD timezone
-      const bdDate = new Date(
-        date.toLocaleString("en-US", { timeZone: "Asia/Dhaka" })
-      );
-      bdDate.setHours(0, 0, 0, 0);
-      return new Date(bdDate.toISOString()); // return as UTC
+      return moment.tz(date, "Asia/Dhaka").startOf("day").toDate();
     }
 
     function getBDEndOfDay(date = new Date()) {
-      const bdDate = new Date(
-        date.toLocaleString("en-US", { timeZone: "Asia/Dhaka" })
-      );
-      bdDate.setHours(23, 59, 59, 999);
-      return new Date(bdDate.toISOString()); // return as UTC
+      return moment.tz(date, "Asia/Dhaka").endOf("day").toDate();
     }
 
     function getBDStartOfMonth(date = new Date()) {
-      const bdDate = new Date(
-        date.toLocaleString("en-US", { timeZone: "Asia/Dhaka" })
-      );
-      bdDate.setDate(1);
-      bdDate.setHours(0, 0, 0, 0);
-      return new Date(bdDate.toISOString());
+      return moment.tz(date, "Asia/Dhaka").startOf("month").toDate();
     }
 
     function getBDEndOfMonth(date = new Date()) {
-      const bdDate = new Date(
-        date.toLocaleString("en-US", { timeZone: "Asia/Dhaka" })
-      );
-      bdDate.setMonth(bdDate.getMonth() + 1, 1);
-      bdDate.setHours(0, 0, 0, -1); // last ms of prev day
-      return new Date(bdDate.toISOString());
+      return moment.tz(date, "Asia/Dhaka").endOf("month").toDate();
     }
 
     function getBDStartOfYear(date = new Date()) {
-      const bdDate = new Date(
-        date.toLocaleString("en-US", { timeZone: "Asia/Dhaka" })
-      );
-      bdDate.setMonth(0, 1);
-      bdDate.setHours(0, 0, 0, 0);
-      return new Date(bdDate.toISOString());
+      return moment.tz(date, "Asia/Dhaka").startOf("year").toDate();
     }
 
     function getBDEndOfYear(date = new Date()) {
-      const bdDate = new Date(
-        date.toLocaleString("en-US", { timeZone: "Asia/Dhaka" })
-      );
-      bdDate.setFullYear(bdDate.getFullYear() + 1, 0, 1);
-      bdDate.setHours(0, 0, 0, -1);
-      return new Date(bdDate.toISOString());
+      return moment.tz(date, "Asia/Dhaka").endOf("year").toDate();
     }
-
     // ==========================
     // API
     // ==========================
