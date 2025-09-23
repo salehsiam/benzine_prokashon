@@ -13,6 +13,7 @@ import { BookHeart, LogOut, ShoppingCart, UserRoundPlus } from "lucide-react";
 import debounce from "lodash/debounce";
 import useAdmin from "../../Hooks/useAdmin";
 import { useCart } from "../../Provider/CartContext";
+import useWriter from "../../Hooks/useWriter";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,6 +23,7 @@ const Navbar = () => {
   const location = useLocation();
   const pathname = location.pathname;
   const [isAdmin, isAdminLoading] = useAdmin();
+  const [isWriter, isWriterLoading] = useWriter();
   const { cart } = useCart();
   const [searchInput, setSearchInput] = useState(
     searchParams.get("search") || ""
@@ -29,7 +31,12 @@ const Navbar = () => {
   const navLinks = [
     { name: "হোম", href: "/" },
     { name: "সকল বই", href: "/all-books" },
-    ...(isAdmin ? [{ name: "ড্যাশবোর্ড", href: "/dashboard" }] : []),
+    ...(!isAdminLoading && isAdmin
+      ? [{ name: "ড্যাশবোর্ড", href: "/dashboard" }]
+      : []),
+    ...(!isWriterLoading && isWriter
+      ? [{ name: "আমার বই", href: "/my-books" }]
+      : []),
     { name: "যোগাযোগ", href: "/contact" },
   ];
 

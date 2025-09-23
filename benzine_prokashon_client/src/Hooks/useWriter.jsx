@@ -2,29 +2,29 @@ import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "./useAxiosSecure";
 import useAuth from "./useAuth";
 
-const useAdmin = () => {
+const useWriter = () => {
   const axiosSecure = useAxiosSecure();
   const { user, loading } = useAuth();
 
   const {
-    data: isAdmin = false,
-    isPending: isAdminLoading,
+    data: isWriter = false,
+    isPending: isWriterLoading,
     error,
   } = useQuery({
-    queryKey: ["isAdmin", user?.email],
+    queryKey: ["isWriter", user?.email],
     enabled: !!user?.email && !loading,
     queryFn: async () => {
       try {
-        const res = await axiosSecure.get(`/users/admin/${user.email}`);
-        return res.data?.admin;
+        const res = await axiosSecure.get(`/users/writer/${user.email}`);
+        return res.data?.writer;
       } catch (err) {
-        console.error("Admin check failed:", err);
+        console.error("Writer check failed:", err);
         return false;
       }
     },
   });
 
-  return [isAdmin, isAdminLoading, error];
+  return [isWriter, isWriterLoading, error];
 };
 
-export default useAdmin;
+export default useWriter;

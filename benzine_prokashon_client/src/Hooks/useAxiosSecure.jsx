@@ -34,9 +34,10 @@ const useAxiosSecure = () => {
         const status = error?.response?.status;
 
         // Only logout on 401 (unauthorized)
-        if (status === 401) {
+        if (status === 401 && localStorage.getItem("access-token")) {
           try {
             await logOut();
+            navigate("/login");
           } catch (err) {
             console.error("Error during logout:", err);
           }

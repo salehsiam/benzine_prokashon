@@ -73,6 +73,19 @@ async function run() {
       next();
     };
 
+    const verifyWriter = async (req, res, next) => {
+      const email = req.decoded.email;
+      const query = { email };
+
+      const user = await userCollection.findOne(query);
+      if (user?.role !== "writer") {
+        return res
+          .status(403)
+          .send({ message: "Forbidden access. Writer only." });
+      }
+      next();
+    };
+
     app.get("/users/admin/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
 
@@ -87,6 +100,21 @@ async function run() {
         admin = user?.role === "admin";
       }
       res.send({ admin });
+    });
+    app.get("/users/writer/:email", verifyToken, async (req, res) => {
+      const email = req.params.email;
+
+      if (email !== req.decoded.email) {
+        return res.status(403).send({ message: "forbidden access" });
+      }
+      const query = { email: email };
+
+      const user = await userCollection.findOne(query);
+      let writer = false;
+      if (user) {
+        writer = user?.role === "writer";
+      }
+      res.send({ writer });
     });
 
     // user apis
@@ -123,7 +151,7 @@ async function run() {
       }
     });
 
-    app.patch("/users/:id/role", verifyAdmin, async (req, res) => {
+    app.patch("/users/:id/role", verifyToken, verifyAdmin, async (req, res) => {
       try {
         const { id } = req.params;
         const { role } = req.body;

@@ -57,12 +57,12 @@ const LoginForm = () => {
       if (!res.data) {
         await axiosPublic.post("/users", userData);
       }
+      navigate("/");
     } catch (err) {
       console.error(err);
       // toast.error("Google login failed!");
     }
     // toast("Signed in with Google!");
-    navigate("/");
   };
 
   return (
