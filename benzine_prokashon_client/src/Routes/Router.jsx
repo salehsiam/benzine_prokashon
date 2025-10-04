@@ -18,6 +18,7 @@ import BookSalesTable from "../Pages/Admin/BookSalesTable";
 import AllUsersPage from "../Pages/Admin/AllUsersPage";
 import AdminRoute from "./AdminRoute";
 import ContactPage from "../Pages/User/ContactPage";
+import MyBooks from "../Pages/Writer/MyBooks";
 
 const router = createBrowserRouter([
   {
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
       {
         path: "contact",
         element: <ContactPage />,
+      },
+      {
+        path: "my-books",
+        element: <MyBooks />,
       },
     ],
   },

@@ -28,6 +28,9 @@ const AddBooks = () => {
   const { user } = useAuth();
   const imageHostingKey = import.meta.env.VITE_IMGBB_KEY;
   const imageHostingApi = `https://api.imgbb.com/1/upload?key=${imageHostingKey}`;
+  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+  const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
   const genresList = [
     "থ্রিলার",
     "হরর",
@@ -81,44 +84,52 @@ const AddBooks = () => {
           "Content-Type": "multipart/form-data",
         },
       });
+      if (!res.data.success) throw new Error("Cover upload failed");
 
-      if (res.data.success) {
-        const imgURL = res.data.data.display_url;
+      const imgURL = res.data.data.display_url;
 
-        // Create book object
-        const bookData = {
-          productNameBn: data.productNameBn,
-          productNameEn: data.productNameEn,
-          subtitle: data.subtitle,
-          authorName: data.authorName,
-          translatorName: data.translatorName,
-          listPrice: Number(data.listPrice),
-          pages: Number(data.pages),
-          discountType: data.discountType,
-          discountValue: Number(data.discountValue),
-          stock: Number(data.stock),
-          isbn: data.isbn,
-          description: data.description,
-          coverImage: imgURL,
-          genres: data.genres,
-          authorEmail: data.authorEmail,
-          bookPdf: data.bookPdf ? data.bookPdf.name : null,
-          createdBy: user?.email,
-          isFeatured: false,
-          createdAt: new Date(),
-        };
+      // In AddBooks.jsx, update the PDF upload section:
 
-        // Send book data to backend
-        const response = await axiosPublic.post("/books", bookData);
+      // Create book object
+      const bookData = {
+        productNameBn: data.productNameBn,
+        productNameEn: data.productNameEn,
+        subtitle: data.subtitle,
+        authorName: data.authorName,
+        translatorName: data.translatorName,
+        listPrice: Number(data.listPrice),
+        pages: Number(data.pages),
+        discountType: data.discountType,
+        discountValue: Number(data.discountValue),
+        stock: Number(data.stock),
+        isbn: data.isbn,
+        description: data.description,
+        coverImage: imgURL,
+        genres: data.genres,
+        authorEmail: data.authorEmail,
+        bookPdf: data?.bookPdf,
+        createdBy: user?.email,
+        isFeatured: false,
+        createdAt: new Date(),
+      };
 
-        if (response.data.insertedId) {
-          toast.success("Book added successfully!");
-          form.reset(); // ✅ clear form after success
-        }
+      // Send book data to backend
+      const response = await axiosPublic.post("/books", bookData);
+
+      if (response.data.insertedId) {
+        toast.success("Book added successfully!");
+        form.reset(); // ✅ clear form after success
       }
     } catch (error) {
       console.error("Error adding book:", error);
-      toast.error("Failed to add book");
+      // Improved logging: Check Cloudinary's error details
+      if (error.response) {
+        console.error("Cloudinary error response:", error.response.data);
+      }
+      toast.error(
+        "Failed to add book: " +
+          (error.response?.data?.error?.message || error.message)
+      );
     }
   };
 
