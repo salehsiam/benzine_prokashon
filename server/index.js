@@ -518,6 +518,13 @@ async function run() {
 
     // books apis
 
+    app.get("/my-books/:email", verifyToken, verifyWriter, async (req, res) => {
+      const email = req.params.email;
+      const query = { authorEmail: email };
+      const books = await booksCollection.find(query).toArray();
+      res.send(books);
+    });
+
     app.get("/books/:id", async (req, res) => {
       const { id } = req.params;
 
