@@ -19,6 +19,7 @@ import AllUsersPage from "../Pages/Admin/AllUsersPage";
 import AdminRoute from "./AdminRoute";
 import ContactPage from "../Pages/User/ContactPage";
 import MyBooks from "../Pages/Writer/MyBooks";
+import ForgotPassword from "../components/modules/Authentication/ForgotPassword";
 
 const router = createBrowserRouter([
   {
@@ -58,6 +59,10 @@ const router = createBrowserRouter([
   {
     path: "register",
     element: <Register />,
+  },
+  {
+    path: "forgot-password",
+    element: <ForgotPassword />,
   },
 
   {

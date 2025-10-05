@@ -3,10 +3,12 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 import { Outlet } from "react-router-dom";
 import { AppSidebar } from "../ui/app-sidebar";
+import ScrollToTop from "../SharedComponent/ScrollToTop";
 
 const DashboardLayout = () => {
   return (
     <SidebarProvider>
+      <ScrollToTop />
       <AppSidebar />
       <main className="flex-1 p-4">
         <SidebarTrigger />

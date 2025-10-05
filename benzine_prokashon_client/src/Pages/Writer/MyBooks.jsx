@@ -13,6 +13,7 @@ import useAuth from "../../Hooks/useAuth";
 
 const MyBooks = () => {
   const [books, setBooks] = useState([]);
+  const [soldMap, setSoldMap] = useState({});
   const [loading, setLoading] = useState(true);
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
@@ -20,16 +21,31 @@ const MyBooks = () => {
   useEffect(() => {
     if (!user?.email) return;
 
-    axiosSecure
-      .get(`/my-books/${user.email}`)
+    const fetchBooks = axiosSecure
+      .get(`/my-books/${user.email}`) // Assuming this fetches books where writerEmail === user.email
       .then((res) => {
         setBooks(res.data);
-        setLoading(false);
       })
       .catch((err) => {
         console.error("Error fetching books:", err);
-        setLoading(false);
       });
+
+    const fetchSold = axiosSecure
+      .get(`/sold-books/writer/${user.email}`)
+      .then((res) => {
+        const map = {};
+        res.data.forEach((item) => {
+          map[item.bookId] = item.sold;
+        });
+        setSoldMap(map);
+      })
+      .catch((err) => {
+        console.error("Error fetching sold counts:", err);
+      });
+
+    Promise.all([fetchBooks, fetchSold])
+      .then(() => setLoading(false))
+      .catch(() => setLoading(false));
   }, [axiosSecure, user?.email]);
 
   return (
@@ -45,6 +61,7 @@ const MyBooks = () => {
               <TableHead>Book Name</TableHead>
               <TableHead>Price</TableHead>
               <TableHead>Stock</TableHead>
+              <TableHead>Sold</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -68,6 +85,9 @@ const MyBooks = () => {
                   <TableCell>
                     <Skeleton className="h-4 w-12" />
                   </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-12" />
+                  </TableCell>
                 </TableRow>
               ))
             ) : books.length > 0 ? (
@@ -86,12 +106,13 @@ const MyBooks = () => {
                   </TableCell>
                   <TableCell>৳ {book.listPrice}</TableCell>
                   <TableCell>{book.stock}</TableCell>
+                  <TableCell>{soldMap[book._id] || 0}</TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={6}
                   className="h-24 text-center text-muted-foreground"
                 >
                   No books found.

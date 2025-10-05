@@ -446,6 +446,50 @@ async function run() {
       }
     });
 
+    // In your server-side code (e.g., Express route)
+    app.get(
+      "/sold-books/writer/:email",
+      verifyToken,
+      verifyWriter,
+      async (req, res) => {
+        const email = req.params.email;
+        const result = await sellsCollection
+          .aggregate([
+            { $unwind: "$items" },
+            {
+              $addFields: {
+                "items.bookObjectId": { $toObjectId: "$items.bookId" },
+              },
+            },
+            {
+              $lookup: {
+                from: "books", // Assuming your books collection name is 'books'
+                localField: "items.bookObjectId",
+                foreignField: "_id",
+                as: "book",
+              },
+            },
+            { $unwind: "$book" },
+            { $match: { "book.authorEmail": email } },
+            {
+              $group: {
+                _id: "$items.bookId",
+                sold: { $sum: { $toInt: "$items.quantity" } },
+              },
+            },
+            {
+              $project: {
+                bookId: "$_id",
+                sold: 1,
+                _id: 0,
+              },
+            },
+          ])
+          .toArray();
+        res.send(result);
+      }
+    );
+
     /**
      * API: Get sales by specific seller or customer
      * Example: /api/sales/seller/cosuwobaso@mailinator.com

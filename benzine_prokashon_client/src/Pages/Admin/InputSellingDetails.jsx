@@ -19,11 +19,12 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
+import { Link } from "react-router-dom";
+import logo from "./../../assets/logo.png";
 
-// Reusable BookSelect component (has its own internal search state)
+// --- Reusable BookSelect with search ---
 const BookSelect = ({ value, onChange, books }) => {
   const [search, setSearch] = useState("");
-
   const filteredBooks = useMemo(() => {
     if (!search) return books || [];
     return (books || []).filter((book) =>
@@ -65,6 +66,7 @@ const BookSelect = ({ value, onChange, books }) => {
   );
 };
 
+// --- Main Component ---
 const InputSellingDetails = () => {
   const { books } = useBooks();
   const [billData, setBillData] = useState(null);
@@ -76,24 +78,40 @@ const InputSellingDetails = () => {
       sellerEmail: "",
       sellerName: "",
       discount: 0,
-      items: [{ bookId: "", quantity: "", total: "" }],
+      items: [{ bookId: "", quantity: "", discountPercent: 0, total: 0 }],
     },
   });
 
-  const { control, handleSubmit, watch } = form;
+  const { control, handleSubmit, watch, setValue, getValues } = form;
   const { fields, append, remove } = useFieldArray({
     control,
     name: "items",
   });
 
-  // Live calculations
   const items = watch("items") || [];
   const discount = Number(watch("discount") || 0);
   const grandTotal = items.reduce((acc, it) => acc + Number(it.total || 0), 0);
   const finalTotal = Math.max(grandTotal - discount, 0);
 
-  const getBookName = (id) =>
-    books?.find((b) => b._id === id)?.productNameBn || "Unknown Book";
+  const getBook = (id) => books?.find((b) => b._id === id);
+  const getBookName = (id) => getBook(id)?.productNameBn || "Unknown Book";
+
+  // --- Calculate item total function ---
+  const calculateItemTotal = (index) => {
+    const values = getValues();
+    const item = values.items?.[index] || {};
+    const book = getBook(item.bookId);
+    if (book && item.quantity) {
+      const listPrice = Number(book.listPrice || 0);
+      const quantity = Number(item.quantity || 0);
+      const discountPercent = Number(item.discountPercent || 0);
+      const total =
+        listPrice * quantity - (listPrice * quantity * discountPercent) / 100;
+      setValue(`items.${index}.total`, total.toFixed(2));
+    } else {
+      setValue(`items.${index}.total`, "0");
+    }
+  };
 
   const onSubmit = async (data) => {
     try {
@@ -109,17 +127,14 @@ const InputSellingDetails = () => {
         items: (data.items || []).map((it) => ({
           ...it,
           bookName: getBookName(it.bookId),
+          listPrice: getBook(it.bookId)?.listPrice || 0,
         })),
       };
-      console.log("Submitting sale:", enrichedData);
 
+      console.log("Submitting sale:", enrichedData);
       await axiosSecure.post("/sales", enrichedData);
       setBillData(enrichedData);
-
-      // small delay then print
-      setTimeout(() => {
-        window.print();
-      }, 500);
+      setTimeout(() => window.print(), 500);
     } catch (err) {
       console.error(err);
     }
@@ -130,11 +145,13 @@ const InputSellingDetails = () => {
       <h2 className="text-2xl font-semibold text-center my-2">
         Create Invoice
       </h2>
+
       <Form {...form}>
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="space-y-6 max-w-3xl mx-auto bg-white p-4 rounded-2xl shadow"
         >
+          {/* Role and Seller Info */}
           <div className="flex gap-4">
             <FormField
               control={control}
@@ -171,6 +188,7 @@ const InputSellingDetails = () => {
             </div>
           </div>
 
+          {/* Seller Name */}
           <FormField
             control={control}
             name="sellerName"
@@ -185,6 +203,7 @@ const InputSellingDetails = () => {
             )}
           />
 
+          {/* Dynamic Book Inputs */}
           <div className="space-y-4">
             <FormLabel>Books</FormLabel>
 
@@ -193,16 +212,19 @@ const InputSellingDetails = () => {
                 key={item.id}
                 className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end border p-4 rounded-lg"
               >
-                {/* Book select with per-row search */}
+                {/* Book Select */}
                 <FormField
                   control={control}
                   name={`items.${index}.bookId`}
                   render={({ field }) => (
-                    <FormItem className="md:col-span-5 w-full">
+                    <FormItem className="md:col-span-4 w-full">
                       <FormLabel>Book</FormLabel>
                       <BookSelect
                         value={field.value}
-                        onChange={field.onChange}
+                        onChange={(val) => {
+                          field.onChange(val);
+                          calculateItemTotal(index);
+                        }}
                         books={books}
                       />
                       <FormMessage />
@@ -210,20 +232,54 @@ const InputSellingDetails = () => {
                   )}
                 />
 
+                {/* Quantity */}
                 <FormField
                   control={control}
                   name={`items.${index}.quantity`}
                   render={({ field }) => (
-                    <FormItem className="md:col-span-3 w-full">
-                      <FormLabel>Quantity</FormLabel>
+                    <FormItem className="md:col-span-2 w-full">
+                      <FormLabel>Qty</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="0" {...field} />
+                        <Input
+                          type="number"
+                          min="1"
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            calculateItemTotal(index);
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
+                {/* Discount % */}
+                <FormField
+                  control={control}
+                  name={`items.${index}.discountPercent`}
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2 w-full">
+                      <FormLabel>Discount %</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            calculateItemTotal(index);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Total (auto-calculated) */}
                 <FormField
                   control={control}
                   name={`items.${index}.total`}
@@ -231,7 +287,7 @@ const InputSellingDetails = () => {
                     <FormItem className="md:col-span-3 w-full">
                       <FormLabel>Total</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="0" {...field} />
+                        <Input type="number" readOnly {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -255,35 +311,33 @@ const InputSellingDetails = () => {
           <Button
             type="button"
             variant="secondary"
-            onClick={() => append({ bookId: "", quantity: "", total: "" })}
+            onClick={() =>
+              append({ bookId: "", quantity: "", discountPercent: 0, total: 0 })
+            }
           >
             + Add Book
           </Button>
 
-          {/* Discount (in form so it submits) */}
+          {/* Global Discount */}
           <FormField
             control={control}
             name="discount"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Happy Return</FormLabel>
+                <FormLabel>Happy Return (Global Discount)</FormLabel>
                 <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="Enter discount"
-                    {...field}
-                  />
+                  <Input type="number" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          {/* Live totals */}
+          {/* Live Totals */}
           <div className="mt-6 text-right space-y-2">
-            <p className="font-medium">Grand Total: {grandTotal}</p>
+            <p className="font-medium">Grand Total: {grandTotal.toFixed(2)}</p>
             <p className="font-bold text-xl text-green-600">
-              Final Payable: {finalTotal}
+              Final Payable: {finalTotal.toFixed(2)}
             </p>
           </div>
 
@@ -293,13 +347,18 @@ const InputSellingDetails = () => {
         </form>
       </Form>
 
-      {/* Invoice / Bill Section */}
+      {/* Printable Bill */}
       {billData && (
         <div
           id="bill-section"
           className="bg-white p-8 mt-8 mx-auto w-full print:block max-w-3xl"
         >
           <div className="text-center mb-4">
+            <div className="flex justify-center gap-2 ">
+              <Link to="/" className="flex items-center gap-2 font-medium">
+                <img src={logo} alt="Benzine Logo" width={42} height={42} />
+              </Link>
+            </div>
             <h2 className="text-2xl font-bold">Benzene Prokashon</h2>
             <p className="uppercase font-semibold">Invoice</p>
             <p className="text-sm text-muted-foreground">
@@ -321,19 +380,6 @@ const InputSellingDetails = () => {
                 {billData.sellerEmail}
               </p>
             </div>
-            {/* <div className="text-right">
-              <p>
-                <span className="font-semibold">Grand Total:</span>{" "}
-                {billData.grandTotal}
-              </p>
-              <p>
-                <span className="font-semibold">Discount:</span>{" "}
-                {billData.discount}
-              </p>
-              <p className="font-semibold text-lg">
-                Final Payable: {billData.finalTotal}
-              </p>
-            </div> */}
           </div>
 
           <table className="w-full border-collapse border text-sm">
@@ -341,7 +387,8 @@ const InputSellingDetails = () => {
               <tr className="bg-gray-100">
                 <th className="border px-3 py-2">#</th>
                 <th className="border px-3 py-2">Book</th>
-                <th className="border px-3 py-2">Quantity</th>
+                <th className="border px-3 py-2">Qty</th>
+                <th className="border px-3 py-2">Discount %</th>
                 <th className="border px-3 py-2">Total</th>
               </tr>
             </thead>
@@ -355,7 +402,12 @@ const InputSellingDetails = () => {
                   <td className="border px-3 py-2 text-center">
                     {it.quantity}
                   </td>
-                  <td className="border px-3 py-2 text-right">{it.total}</td>
+                  <td className="border px-3 py-2 text-center">
+                    {it.discountPercent}%
+                  </td>
+                  <td className="border px-3 py-2 text-right">
+                    {Number(it.total).toFixed(2)}
+                  </td>
                 </tr>
               ))}
             </tbody>

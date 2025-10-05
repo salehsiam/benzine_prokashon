@@ -12,7 +12,7 @@ import { Input } from "../../ui/input";
 
 import { toast } from "sonner"; // or your toast library
 import useAuth from "../../../Hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom"; // ✅ Import Link
 import useAxiosPublic from "../../../Hooks/useAxiosPublic";
 
 const LoginForm = () => {
@@ -60,9 +60,8 @@ const LoginForm = () => {
       navigate("/");
     } catch (err) {
       console.error(err);
-      // toast.error("Google login failed!");
+      toast.error("Google login failed!");
     }
-    // toast("Signed in with Google!");
   };
 
   return (
@@ -92,26 +91,37 @@ const LoginForm = () => {
                 </FormItem>
               )}
             />
+            <div>
+              {/* Password Field */}
+              <FormField
+                control={form.control}
+                name="password"
+                rules={{ required: "Password is required" }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="Enter your password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* Password Field */}
-            <FormField
-              control={form.control}
-              name="password"
-              rules={{ required: "Password is required" }}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter your password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              {/* Forgot Password */}
+              <div className="text-right">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-blue-500 hover:underline"
+                >
+                  Forgot Password?
+                </Link>
+              </div>
+            </div>
 
             {/* Submit Button */}
             <button
@@ -137,6 +147,14 @@ const LoginForm = () => {
         >
           Login With Google
         </button>
+
+        {/* Register Option */}
+        <p className="mt-4 text-center text-sm text-gray-600">
+          Don’t have an account?{" "}
+          <Link to="/register" className="text-blue-500 hover:underline">
+            Register here
+          </Link>
+        </p>
       </div>
     </div>
   );
