@@ -429,7 +429,7 @@ async function run() {
             $group: {
               _id: "$items.bookId",
               bookName: { $first: "$items.bookName" },
-              totalSalesAmount: { $sum: { $toDouble: "$finalTotal" } },
+              totalSalesAmount: { $sum: { $toDouble: "$items.total" } },
               totalQuantity: { $sum: { $toInt: "$items.quantity" } },
               orderCount: { $sum: 1 },
               dates: { $addToSet: "$createdAt" },
