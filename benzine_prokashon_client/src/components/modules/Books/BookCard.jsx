@@ -24,7 +24,9 @@ const BookCard = ({ book }) => {
         <h3 className="text-md font-bold mb-1 line-clamp-1">
           {book?.productNameBn}
         </h3>
-        <p className="text-sm text-gray-600 mb-1">{book?.translatorName}</p>
+        <p className="text-sm text-gray-600 mb-1">
+          {book?.translatorName ? book.translatorName : book.authorName}
+        </p>
 
         <div className="mt-auto">
           <div className="mt-auto">

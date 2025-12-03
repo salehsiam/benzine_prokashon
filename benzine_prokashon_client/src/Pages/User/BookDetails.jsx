@@ -233,7 +233,7 @@ const BookDetails = () => {
             </div>
 
             {/* Stock */}
-            <p
+            {/* <p
               className={`mb-6 font-semibold ${
                 book?.stock > 0 ? "text-green-600" : "text-red-600"
               }`}
@@ -241,7 +241,7 @@ const BookDetails = () => {
               {book?.stock > 0
                 ? `${book?.stock} copies available`
                 : "Out of stock"}
-            </p>
+            </p> */}
 
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-4">
@@ -252,14 +252,14 @@ const BookDetails = () => {
               >
                 <ShoppingCart size={20} /> Add to Cart
               </button>
-              <button
+              {/* <button
                 onClick={handleOpenPreview}
                 disabled={!book.bookPdf}
                 className="flex items-center gap-2 px-6 py-3 border border-gray-300 font-medium rounded-xl shadow-md hover:bg-gray-100 transition disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
               >
                 <FileText size={20} />
                 {book.bookPdf ? "একটু পড়ে দেখুন" : "Preview Unavailable"}
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
