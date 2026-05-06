@@ -59,6 +59,8 @@ const ManageBooksTable = () => {
             <TableHead>Price</TableHead>
             <TableHead>Discount</TableHead>
             <TableHead>Stock</TableHead>
+            <TableHead>Created By</TableHead>
+            <TableHead>Updated By</TableHead>
             <TableHead className="text-right">Action</TableHead>
           </TableRow>
         </TableHeader>
@@ -105,6 +107,17 @@ const ManageBooksTable = () => {
                     {book?.discountValue} ({book?.discountType})
                   </TableCell>
                   <TableCell>{book?.stock}</TableCell>
+                  <TableCell><p>{book?.createdBy}</p>{new Date(book?.createdAt).toLocaleString()} </TableCell>
+                  <TableCell>
+  {book?.updatedBy && book?.updatedAt ? (
+    <>
+      <p>{book.updatedBy || "-"}</p>
+      <p>{new Date(book.updatedAt).toLocaleString()}</p>
+    </>
+  ) : (
+    "-"
+  )}
+</TableCell>
                   <TableCell className="text-right space-x-1">
                     <button
                       onClick={() => handleEdit(book._id)}

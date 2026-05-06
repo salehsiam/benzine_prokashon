@@ -24,6 +24,7 @@ const AllBooks = () => {
     sortBy,
     genre
   );
+  console.log("Books data:", { books, totalPages, currentPage, isLoading, error });
 
   const updateSearchParams = (newParams) => {
     const params = Object.fromEntries(searchParams);

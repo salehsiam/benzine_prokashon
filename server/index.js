@@ -11,8 +11,8 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.bx9ca.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.shxzq5t.mongodb.net/?appName=Cluster0`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.bx9ca.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.shxzq5t.mongodb.net/?appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -74,6 +74,34 @@ async function run() {
       next();
     };
 
+    const verifyModerator= async (req, res, next) => {
+      const email = req.decoded.email;
+      const query = { email };
+
+      const user = await userCollection.findOne(query);
+      if (user?.role !== "moderator") {
+        return res
+          .status(403)
+          .send({ message: "Forbidden access. Moderators only." });
+      }
+      next();
+    };
+
+const verifyAdminOrModerator = async (req, res, next) => {
+  const email = req.decoded.email;
+  const query = { email };
+
+  const user = await userCollection.findOne(query);
+
+  if (user?.role !== "admin" && user?.role !== "moderator") {
+    return res
+      .status(403)
+      .send({ message: "Forbidden access. Admin or Moderator only." });
+  }
+
+  next();
+};
+
     const verifyWriter = async (req, res, next) => {
       const email = req.decoded.email;
       const query = { email };
@@ -86,6 +114,7 @@ async function run() {
       }
       next();
     };
+
 
     app.get("/users/admin/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
@@ -101,6 +130,22 @@ async function run() {
         admin = user?.role === "admin";
       }
       res.send({ admin });
+    });
+
+    app.get("/users/moderator/:email", verifyToken, async (req, res) => {
+      const email = req.params.email;
+
+      if (email !== req.decoded.email) {
+        return res.status(403).send({ message: "forbidden access" });
+      }
+      const query = { email: email };
+
+      const user = await userCollection.findOne(query);
+      let moderator = false;
+      if (user) {
+        moderator = user?.role === "moderator";
+      }
+      res.send({ moderator });
     });
     app.get("/users/writer/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
@@ -158,7 +203,7 @@ async function run() {
         const { role } = req.body;
 
         // Allowed roles only
-        const allowedRoles = ["writer", "admin", "user"];
+        const allowedRoles = ["writer", "admin", "moderator", "user"];
         if (!allowedRoles.includes(role)) {
           return res.status(400).json({ message: "Invalid role" });
         }
@@ -367,7 +412,7 @@ async function run() {
       }
     });
 
-    app.post("/sales", verifyToken, verifyAdmin, async (req, res) => {
+    app.post("/sales", verifyToken, verifyAdminOrModerator, async (req, res) => {
       try {
         const sales = req.body;
         sales.createdAt = new Date();
@@ -498,7 +543,7 @@ async function run() {
     app.get(
       "/sales/seller/:email",
       verifyToken,
-      verifyAdmin,
+      verifyAdmin || verifyModerator,
       async (req, res) => {
         try {
           const { email } = req.params;
@@ -718,9 +763,9 @@ async function run() {
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+    // console.log(
+    //   "Pinged your deployment. You successfully connected to MongoDB!"
+    // );
   } catch (err) {
     console.error("MongoDB connection error:", err);
   }

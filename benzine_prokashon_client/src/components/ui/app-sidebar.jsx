@@ -33,7 +33,6 @@ export function AppSidebar() {
   const handleLogout = async () => {
     try {
       await logOut();
-      console.log("User logged out");
     } catch (err) {
       console.error(err);
     }
@@ -161,12 +160,12 @@ export function AppSidebar() {
       {/* Footer */}
       <SidebarFooter>
         {/* <div className="px-4 py-2 text-sm">© 2025 benzine prokashon</div> */}
-        <button
+        {/* <button
           onClick={handleLogout}
           className="px-4 py-2 text-2xl hover:bg-opacity-90 transition flex items-center justify-end"
         >
           <CiLogout />
-        </button>
+        </button> */}
         {/* <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>

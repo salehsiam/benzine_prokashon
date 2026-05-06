@@ -14,6 +14,8 @@ import debounce from "lodash/debounce";
 import useAdmin from "../../Hooks/useAdmin";
 import { useCart } from "../../Provider/CartContext";
 import useWriter from "../../Hooks/useWriter";
+import useModerator from "../../Hooks/useModerator";
+
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,6 +26,7 @@ const Navbar = () => {
   const pathname = location.pathname;
   const [isAdmin, isAdminLoading] = useAdmin();
   const [isWriter, isWriterLoading] = useWriter();
+  const [isModerator, isModeratorLoading] = useModerator();
   const { cart } = useCart();
   const [searchInput, setSearchInput] = useState(
     searchParams.get("search") || ""
@@ -37,8 +40,12 @@ const Navbar = () => {
     ...(!isWriterLoading && isWriter
       ? [{ name: "আমার বই", href: "/my-books" }]
       : []),
+    ...(!isModeratorLoading && isModerator
+    ? [{ name: "বিল", href: "/input-selling-details" }]
+    : []),
     { name: "যোগাযোগ", href: "/contact" },
   ];
+  
 
   const placeholders = [
     "বইয়ের নাম লিখুন",
@@ -52,14 +59,12 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       await logOut();
-      console.log("User logged out");
     } catch (err) {
       console.error("Logout error:", err);
     }
   };
 
   const updateSearch = debounce((value) => {
-    console.log("Navbar updating search:", value);
     const params = Object.fromEntries(searchParams);
     if (value) {
       setSearchParams({ ...params, search: value, page: 1 });

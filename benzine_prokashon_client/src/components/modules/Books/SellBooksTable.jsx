@@ -99,6 +99,7 @@ const SellBooksTable = () => {
             <TableHead>Total</TableHead>
             <TableHead>Discount</TableHead>
             <TableHead>Final Total</TableHead>
+            <TableHead>Billed By</TableHead>
             <TableHead>Date</TableHead>
             <TableHead>Action</TableHead>
           </TableRow>
@@ -131,6 +132,7 @@ const SellBooksTable = () => {
                   <TableCell>{sale.grandTotal}</TableCell>
                   <TableCell>{sale.discount}</TableCell>
                   <TableCell>{sale.finalTotal}</TableCell>
+                  <TableCell>{sale.billedBy}</TableCell>
                   <TableCell>
                     {new Date(sale.createdAt).toLocaleString()}
                   </TableCell>

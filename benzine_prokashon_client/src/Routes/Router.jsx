@@ -50,6 +50,10 @@ const router = createBrowserRouter([
         path: "my-books",
         element: <MyBooks />,
       },
+        {
+        path: "input-selling-details",
+        element: <InputSellingDetails />,
+  },
     ],
   },
   {
@@ -64,6 +68,7 @@ const router = createBrowserRouter([
     path: "forgot-password",
     element: <ForgotPassword />,
   },
+
 
   {
     path: "/dashboard",

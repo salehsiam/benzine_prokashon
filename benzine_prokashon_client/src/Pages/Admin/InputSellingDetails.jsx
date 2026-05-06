@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import { Link } from "react-router-dom";
 import logo from "./../../assets/logo.png";
+import useAuth from "../../Hooks/useAuth";
 
 // --- Reusable BookSelect with search ---
 const BookSelect = ({ value, onChange, books }) => {
@@ -71,12 +72,14 @@ const InputSellingDetails = () => {
   const { books } = useBooks();
   const [billData, setBillData] = useState(null);
   const axiosSecure = useAxiosSecure();
+   const { user } = useAuth();
 
   const form = useForm({
     defaultValues: {
       role: "",
       sellerEmail: "",
       sellerName: "",
+       billedBy: user?.displayName || "",
       discount: 0,
       items: [{ bookId: "", quantity: "", discountPercent: 0, total: 0 }],
     },
@@ -131,7 +134,6 @@ const InputSellingDetails = () => {
         })),
       };
 
-      console.log("Submitting sale:", enrichedData);
       await axiosSecure.post("/sales", enrichedData);
       setBillData(enrichedData);
       setTimeout(() => window.print(), 500);
@@ -142,7 +144,7 @@ const InputSellingDetails = () => {
 
   return (
     <>
-      <h2 className="text-2xl font-semibold text-center my-2">
+      <h2 className="text-2xl font-semibold text-center my-8">
         Create Invoice
       </h2>
 
@@ -413,6 +415,7 @@ const InputSellingDetails = () => {
             </tbody>
           </table>
 
+        
           <div className="mt-6 text-right">
             <p className="font-semibold">Total: {billData.grandTotal}</p>
             <p className="font-semibold">Happy Return: {billData.discount}</p>
@@ -420,6 +423,12 @@ const InputSellingDetails = () => {
               Final Payable: {billData.finalTotal}
             </p>
           </div>
+            <div className="mt-6 text-left">
+           <p>
+              <span className="font-semibold">Billed By:</span>{" "}
+          {billData.billedBy}
+           </p>
+           </div>
         </div>
       )}
     </>

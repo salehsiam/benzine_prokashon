@@ -50,7 +50,6 @@ const BookDetails = () => {
 
   // PDF load handlers
   const handlePdfLoad = () => {
-    console.log("PDF loaded successfully");
     setPdfLoading(false);
     setPdfError("");
     setPdfLoadSuccess(true);
@@ -96,7 +95,6 @@ const BookDetails = () => {
 
   // Simplified modal open handler
   const handleOpenPreview = () => {
-    console.log("Opening preview modal");
     if (!book?.bookPdf) {
       setPdfError("No preview available for this book.");
       return;
@@ -111,7 +109,6 @@ const BookDetails = () => {
 
   // Close modal handler
   const handleCloseModal = () => {
-    console.log("Closing modal");
     setOpen(false);
     // Reset states only when closing
     setPdfError("");
@@ -164,7 +161,7 @@ const BookDetails = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-6 mt-32">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
         {/* Book Cover */}
         <div className="flex justify-center items-start px-16">
           <div className="w-full border shadow-md overflow-hidden rounded-lg">
@@ -261,18 +258,25 @@ const BookDetails = () => {
                 {book.bookPdf ? "একটু পড়ে দেখুন" : "Preview Unavailable"}
               </button> */}
             </div>
+            <div className="mt-12 bg-gray-50 p-6 rounded-xl shadow-sm">
+              <h3 className="text-xl font-semibold mb-4">Book Description</h3>
+              <div
+                className="prose max-w-none text-gray-700 leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: book?.description }}
+              />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Description */}
-      <div className="mt-12 bg-gray-50 p-6 rounded-xl shadow-sm">
+      {/* <div className="mt-12 bg-gray-50 p-6 rounded-xl shadow-sm">
         <h3 className="text-xl font-semibold mb-4">Book Description</h3>
         <div
           className="prose max-w-none text-gray-700 leading-relaxed"
           dangerouslySetInnerHTML={{ __html: book?.description }}
         />
-      </div>
+      </div> */}
 
       {/* PDF Preview Modal - FIXED */}
       <Dialog open={open} onOpenChange={handleCloseModal}>

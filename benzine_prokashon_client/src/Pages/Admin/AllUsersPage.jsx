@@ -136,6 +136,7 @@ const AllUsersPage = () => {
                         <SelectItem value="user">User</SelectItem>
                         <SelectItem value="writer">Writer</SelectItem>
                         <SelectItem value="admin">Admin</SelectItem>
+                        <SelectItem value="moderator">Moderator</SelectItem>
                       </SelectContent>
                     </Select>
                   </TableCell>
