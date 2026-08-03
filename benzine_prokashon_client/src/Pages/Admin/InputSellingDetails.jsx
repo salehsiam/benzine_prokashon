@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
+import { Check, ChevronsUpDown } from "lucide-react";
 import useBooks from "../../Hooks/useBooks";
 import {
   Form,
@@ -10,76 +11,109 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import { Link } from "react-router-dom";
 import logo from "./../../assets/logo.png";
 import useAuth from "../../Hooks/useAuth";
 
-// --- Reusable BookSelect with search ---
+// --- Reusable BookSelect with search (Combobox pattern, Bangla-safe filtering) ---
 const BookSelect = ({ value, onChange, books }) => {
+  const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+
+  const selectedBook = books?.find((b) => b._id === value);
+
   const filteredBooks = useMemo(() => {
-    if (!search) return books || [];
+    if (!search.trim()) return books || [];
     return (books || []).filter((book) =>
-      book.productNameBn.toLowerCase().includes(search.toLowerCase())
+      book.productNameBn?.toLowerCase().includes(search.toLowerCase())
     );
   }, [search, books]);
 
   return (
-    <Select onValueChange={onChange} value={value}>
-      <FormControl>
-        <SelectTrigger>
-          <SelectValue placeholder="Select Book" />
-        </SelectTrigger>
-      </FormControl>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between font-normal"
+        >
+          {selectedBook ? selectedBook.productNameBn : "Select Book"}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
 
-      <SelectContent>
-        <div className="p-2">
-          <Input
+      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+        {/* shouldFilter={false} -> cmdk er nijer Bangla-te buggy filter bondho, amra nije filter korchi */}
+        <Command shouldFilter={false}>
+          <CommandInput
             placeholder="Search book..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="mb-2"
+            onValueChange={setSearch}
           />
-        </div>
-
-        {filteredBooks?.length ? (
-          filteredBooks.map((book) => (
-            <SelectItem key={book._id} value={book._id}>
-              {book.productNameBn}
-            </SelectItem>
-          ))
-        ) : (
-          <div className="px-3 py-2 text-sm text-muted-foreground">
-            No books found
-          </div>
-        )}
-      </SelectContent>
-    </Select>
+          <CommandList>
+            {filteredBooks.length === 0 ? (
+              <CommandEmpty>No books found</CommandEmpty>
+            ) : (
+              <CommandGroup>
+                {filteredBooks.map((book) => (
+                  <CommandItem
+                    key={book._id}
+                    value={book._id}
+                    onSelect={() => {
+                      onChange(book._id);
+                      setSearch("");
+                      setOpen(false);
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        value === book._id ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {book.productNameBn}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 };
 
 // --- Main Component ---
 const InputSellingDetails = () => {
-  const { books } = useBooks();
+  const { books } = useBooks(1, 5000);
   const [billData, setBillData] = useState(null);
   const axiosSecure = useAxiosSecure();
-   const { user } = useAuth();
+  const { user } = useAuth();
 
   const form = useForm({
     defaultValues: {
       role: "",
       sellerEmail: "",
       sellerName: "",
-       billedBy: user?.displayName || "",
+      billedBy: user?.displayName || "",
       discount: 0,
       items: [{ bookId: "", quantity: "", discountPercent: 0, total: 0 }],
     },
@@ -415,7 +449,6 @@ const InputSellingDetails = () => {
             </tbody>
           </table>
 
-        
           <div className="mt-6 text-right">
             <p className="font-semibold">Total: {billData.grandTotal}</p>
             <p className="font-semibold">Happy Return: {billData.discount}</p>
@@ -423,12 +456,12 @@ const InputSellingDetails = () => {
               Final Payable: {billData.finalTotal}
             </p>
           </div>
-            <div className="mt-6 text-left">
-           <p>
+          <div className="mt-6 text-left">
+            <p>
               <span className="font-semibold">Billed By:</span>{" "}
-          {billData.billedBy}
-           </p>
-           </div>
+              {billData.billedBy}
+            </p>
+          </div>
         </div>
       )}
     </>

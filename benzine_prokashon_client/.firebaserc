@@ -1,7 +1,7 @@
 {
   "projects": {
     "default": "benzeneprokashonbd",
-    "dist": "benzineprokashon"
+    "dist": "benzeneprokashonbd"
   },
   "targets": {},
   "etags": {}
